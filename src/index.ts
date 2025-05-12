@@ -2,7 +2,10 @@ import { Interpreter } from './interpreter/interpreter';
 import { Lexer } from "./lexer/lexer";
 import { Parser } from "./parser/parser";
 
-const code = 'a = (3 + 5) * 5';
+const code = `a = (3 + 5) * 5
+                b = a * 10
+                print(b-5)
+`;
 
 const lexer = new Lexer(code);
 lexer.lex();
@@ -15,7 +18,7 @@ console.log(parser.tokens);
 
 
 console.log("ast:=====================")
-const ast = parser.parse()
+const ast = parser.parseExpression()
 const interpreter = new Interpreter(ast!);
 
 console.log(ast)

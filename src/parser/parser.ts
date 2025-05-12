@@ -1,28 +1,64 @@
-import { PriorizeOperator, AstTokenType } from './../models/ast';
-import { TokenOperator } from './../models/token';
-import {AstOperator} from '../models/ast';
-import { Lexer } from './../lexer/lexer';
-import { TokenType, type Token } from "../models/token";
-import type { AstNode } from '../models/ast';
+import { PriorizeOperator, AstTokenType } from './model/ast';
+import { TokenOperator, TokenStatement } from '../lexer/model/token';
+import {AstOperator} from './model/ast';
+import { TokenType, type Token } from "../lexer/model/token";
+import type { AstNode } from './model/ast';
+import type { PrintStatement, Statement } from './model/statement';
+import type { Program } from './model/program';
 
 
 export class Parser {
     tokens: Token[];
     cursor: number;
     outputStack: AstNode[];
+    body: Statement[]
     operatorStack: Token[];
 
     constructor(tokens: Token[]) {
         this.tokens = tokens;
         this.cursor = 0;
         this.outputStack = [];
-        this.operatorStack = []
+        this.operatorStack = [];
+        this.body = [];
+    }
+
+    parse() : Program {
+        while (!this.isEnd()) {
+            const smt = this.parseStatement();
+            this.body.push(smt)
+
+
+
+        }
+
+        return {
+            type: "program",
+            body: this.body
+        }
     }
 
 
-    parse() {
+    private parseStatement() : Statement {
+        const token = this.peek();
 
-        if (this.tokens.length <= 0) return;
+        if (token.type == TokenStatement.PRINT) {
+            return this.parsePrintToken();
+        }
+
+        const expr = this.parseExpression();
+
+        return {
+            type: "expression",
+            expression: expr
+        }
+    }
+
+
+    private parseExpression() : AstNode {
+
+        if (this.tokens.length <= 0) {
+            throw new Error('Error parsing no token founds!');
+        }
 
         while (!this.isEnd()) {
             const token = this.peek();
@@ -55,7 +91,7 @@ export class Parser {
             this.applyOperator();
         }
 
-        return this.outputStack;
+        return this.outputStack[0]!;
 
     }
 
@@ -170,18 +206,42 @@ export class Parser {
         });
     }
 
+    // Statement
+
+    private parsePrintToken() : PrintStatement{
+        this.next();
+
+        const open = this.next();
+        if (open.type !== TokenOperator.OPEN_BRACKET) {
+            throw new Error('Expected ( after print');
+        }
+
+        const argument = this.parseExpression();
+
+        const close = this.next();
+
+        if (close?.type !== TokenOperator.CLOSED_BRACKET) {
+            throw new Error("Expected ')' after print argument");
+        }
+
+    return {
+        type: 'print',
+        expression: argument
+    };
+    }
+
 
     // UTILS FUNCTION
 
-    private peek() {
-        return this.tokens[this.cursor];
+    private peek() : Token {
+        return this.tokens[this.cursor]!;
     }
 
-    private next() {
-        return this.tokens[this.cursor++];
+    private next() : Token {
+        return this.tokens[this.cursor++]!;
     }
 
-    private isEnd() {
+    private isEnd() : boolean {
         return this.cursor >= this.tokens.length;
     }
 

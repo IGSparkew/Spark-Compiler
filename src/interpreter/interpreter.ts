@@ -1,21 +1,23 @@
-import { AstOperator, type AssignementExpression, type AstNode, type BinaryExpression, type IdentifierLitteral } from "../models/ast";
+import { AstOperator, type AssignementExpression, type AstNode, type BinaryExpression, type IdentifierLitteral } from "../parser/model/ast";
+import type { Program } from "../parser/model/program";
 
 
 export class Interpreter {
-    ast: AstNode[];
+    program: Program;
     variables: Map<string, AstNode>;
 
-    constructor(ast: AstNode[]) {
-        this.ast = ast;
+    constructor(program: Program) {
+        this.program = program;
         this.variables = new Map();
     }
 
     interprete() {
-        for (const node of this.ast) {
-            return this.evalExpression(node);
-        }
+        // let r = undefined
+        // for (const node of this.ast) {
+        //     r = this.evalExpression(node);
+        // }
 
-
+        // return r;
 
     }
 

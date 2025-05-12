@@ -17,3 +17,7 @@ export enum TokenType {
     NUMBER= "number",
     IDENTIFIER="identifier"
 }
+
+export enum TokenStatement {
+    PRINT = "print"
+}

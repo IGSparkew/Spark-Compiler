@@ -1,9 +1,10 @@
-import { TokenOperator, TokenType, type Token } from "./model/token";
+import { TokenOperator, TokenType } from "./model/token";
 import { filter_character, isAlpha, isDigit } from "../utils";
 
 import { getNumber } from "./number";
 import { getAlpha } from "./alpha";
 import { getStatement } from "./statement";
+import type { Token } from "../models/token";
 
 export class Lexer {
     cursor: number;

@@ -1,5 +1,7 @@
-import { AstOperator, type AssignementExpression, type AstNode, type BinaryExpression, type IdentifierLitteral } from "../parser/model/ast";
-import type { Program } from "../parser/model/program";
+import { AstTokenType } from "../models/token";
+import { type AssignementExpression, type AstNode, type BinaryExpression } from "../parser/model/ast";
+import type { Program } from "../models/program";
+import type { Statement } from "../parser/model/statement";
 
 
 export class Interpreter {
@@ -12,13 +14,21 @@ export class Interpreter {
     }
 
     interprete() {
-        // let r = undefined
-        // for (const node of this.ast) {
-        //     r = this.evalExpression(node);
-        // }
 
-        // return r;
+        for(const statement of this.program.body) {
 
+            switch((statement as Statement).type) {
+                case "print":
+                    console.log("> " + this.evalExpression(statement.expression));
+                    break;
+                case "expression":
+                    this.evalExpression(statement.expression);
+                    break;
+                default:
+                    throw new Error(`Unexpected statement ${statement.type}`);
+            }
+
+        }
     }
 
     private evalExpression(node: AstNode) {
@@ -38,13 +48,13 @@ export class Interpreter {
 
     private evalBinary(node: BinaryExpression) : any {
         switch(node.operator) {
-            case AstOperator.PLUS:
+            case AstTokenType.PLUS:
                 return this.evalExpression(node.left) + this.evalExpression(node.right)
-            case AstOperator.MINUS:
+            case AstTokenType.MINUS:
                 return this.evalExpression(node.left) - this.evalExpression(node.right) 
-            case AstOperator.MULT:
+            case AstTokenType.MULT:
                 return this.evalExpression(node.left) * this.evalExpression(node.right) 
-            case AstOperator.DIVIDE:
+            case AstTokenType.DIVIDE:
                 return this.evalExpression(node.left) / this.evalExpression(node.right) 
         }
 

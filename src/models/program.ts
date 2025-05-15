@@ -1,4 +1,4 @@
-import type { Statement } from "./statement";
+import type { Statement } from "../parser/model/statement";
 
 export interface Program {
     type: 'program',

@@ -1,8 +1,3 @@
-export type Token = {
-    type: string,
-    value?: number | string
-}
-
 export enum TokenOperator {
     PLUS="+",
     MINUS="-",
@@ -14,8 +9,8 @@ export enum TokenOperator {
 }
 
 export enum TokenType {
-    NUMBER= "number",
-    IDENTIFIER="identifier"
+    NUMBER= "NUMBER",
+    IDENTIFIER="IDENTIFIER"
 }
 
 export enum TokenStatement {

@@ -1,13 +1,15 @@
-import { TokenStatement, type Token } from "./model/token";
+import type { Token } from "../models/token";
+import { TokenStatement } from "./model/token";
 
 export function getStatement(identifier: string) : Token | undefined {
 
-    const statements = Object.values(TokenStatement);
+    const statements = Object.entries(TokenStatement);
 
-    for (let st of statements) {
-        if (identifier == st) {
+    for (let [key, value] of statements) {
+        if (identifier == value) {
             return {
-                type: st
+                type: key,
+                value
             }
         }
     } 

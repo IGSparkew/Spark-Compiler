@@ -27,25 +27,3 @@ export interface IdentifierLitteral {
     type: 'variable';
     value: string | undefined ;
 }
-
-export const PriorizeOperator : Record<string, number> = {
-    '=' : 1,
-    '+' : 2,
-    '-' : 2,
-    '*' : 3,
-    '/' : 3,
-}
-
-export enum AstOperator {
-    PLUS="+",
-    MINUS="-",
-    MULT = "*",
-    DIVIDE="/",
-    EQUAL="="
-}
-
-export enum AstTokenType {
-    OPEN_BRACKET="OPEN_BRACKET",
-    CLOSED_BRACKET="CLOSED_BRACKET",
-    EQUAL = "EQUAL"
-}

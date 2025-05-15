@@ -1,22 +1,34 @@
-import { AstOperator, type AssignementExpression, type AstNode, type BinaryExpression, type IdentifierLitteral } from "../models/ast";
+import { AstTokenType } from "../models/token";
+import { type AssignementExpression, type AstNode, type BinaryExpression } from "../parser/model/ast";
+import type { Program } from "../models/program";
+import type { Statement } from "../parser/model/statement";
 
 
 export class Interpreter {
-    ast: AstNode[];
+    program: Program;
     variables: Map<string, AstNode>;
 
-    constructor(ast: AstNode[]) {
-        this.ast = ast;
+    constructor(program: Program) {
+        this.program = program;
         this.variables = new Map();
     }
 
     interprete() {
-        for (const node of this.ast) {
-            return this.evalExpression(node);
+
+        for(const statement of this.program.body) {
+
+            switch((statement as Statement).type) {
+                case "print":
+                    console.log("> " + this.evalExpression(statement.expression));
+                    break;
+                case "expression":
+                    this.evalExpression(statement.expression);
+                    break;
+                default:
+                    throw new Error(`Unexpected statement ${statement.type}`);
+            }
+
         }
-
-
-
     }
 
     private evalExpression(node: AstNode) {
@@ -36,13 +48,13 @@ export class Interpreter {
 
     private evalBinary(node: BinaryExpression) : any {
         switch(node.operator) {
-            case AstOperator.PLUS:
+            case AstTokenType.PLUS:
                 return this.evalExpression(node.left) + this.evalExpression(node.right)
-            case AstOperator.MINUS:
+            case AstTokenType.MINUS:
                 return this.evalExpression(node.left) - this.evalExpression(node.right) 
-            case AstOperator.MULT:
+            case AstTokenType.MULT:
                 return this.evalExpression(node.left) * this.evalExpression(node.right) 
-            case AstOperator.DIVIDE:
+            case AstTokenType.DIVIDE:
                 return this.evalExpression(node.left) / this.evalExpression(node.right) 
         }
 

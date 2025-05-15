@@ -1,24 +1,25 @@
-import { Interpreter } from './interpreter/interpreter';
-import { Lexer } from "./lexer/lexer";
-import { Parser } from "./parser/parser";
+import { Compile } from "./compiler";
 
-const code = 'a = (3 + 5) * 5';
+/**
+ * ################################################################################
+ * #                                                                              #
+ * #                                                                              #
+ * #    _____                  _       _____                      _ _             #
+ * #   / ____|                | |     / ____|                    (_) |            #
+ * #  | (___  _ __   __ _ _ __| | __ | |     ___  _ __ ___  _ __  _| | ___ _ __   #
+ * #   \___ \| '_ \ / _` | '__| |/ / | |    / _ \| '_ ` _ \| '_ \| | |/ _ \ '__|  #
+ * #   ____) | |_) | (_| | |  |   <  | |___| (_) | | | | | | |_) | | |  __/ |     #
+ * #  |_____/| .__/ \__,_|_|  |_|\_\  \_____\___/|_| |_| |_| .__/|_|_|\___|_|     #
+ * #         | |                                           | |                    #
+ * #         |_|                                           |_|                    #
+ * #                                                                              #
+ * #                                                                              #
+ * ################################################################################
+ * 
+ * Author IGSparkew
+ */
 
-const lexer = new Lexer(code);
-lexer.lex();
-const tokens = lexer.tokens; 
-const parser = new Parser(tokens);
 
+const code = `print(3+5)`;
 
-console.log("token:=====================")
-console.log(parser.tokens);
-
-
-console.log("ast:=====================")
-const ast = parser.parse()
-const interpreter = new Interpreter(ast!);
-
-console.log(ast)
-console.log("Interpreter:=====================")
-
-console.log(interpreter.interprete());
+Compile(code);

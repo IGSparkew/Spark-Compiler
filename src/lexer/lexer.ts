@@ -1,8 +1,10 @@
-import { TokenOperator, TokenType, type Token } from "../models/token";
+import { TokenOperator, TokenType } from "./model/token";
 import { filter_character, isAlpha, isDigit } from "../utils";
 
 import { getNumber } from "./number";
 import { getAlpha } from "./alpha";
+import { getStatement } from "./statement";
+import type { Token } from "../models/token";
 
 export class Lexer {
     cursor: number;
@@ -61,7 +63,16 @@ export class Lexer {
     private alpha () {
         let {start, end} = getAlpha(this.code, this.cursor);
 
-        this.add_token(TokenType.IDENTIFIER, this.code.slice(start, end));
+        const value = this.code.slice(start, end);
+
+        const identifier = getStatement(value);
+
+        if (identifier !== undefined) {
+            this.tokens.push(identifier)
+        } else {
+            this.add_token(TokenType.IDENTIFIER, value);
+        }
+
         this.cursor = end;
     }
 

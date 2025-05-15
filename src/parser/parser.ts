@@ -1,188 +1,206 @@
-import { PriorizeOperator, AstTokenType } from './../models/ast';
-import { TokenOperator } from './../models/token';
-import {AstOperator} from '../models/ast';
-import { Lexer } from './../lexer/lexer';
-import { TokenType, type Token } from "../models/token";
-import type { AstNode } from '../models/ast';
+import type { AssignementExpression, AstNode, BinaryExpression, IdentifierLitteral, NumberLitteral } from './model/ast';
+import type { ExpressionStatement, PrintStatement, Statement } from './model/statement';
+import type { Program } from '../models/program';
+import { AstTokenType, type Token } from '../models/token';
 
 
 export class Parser {
     tokens: Token[];
     cursor: number;
-    outputStack: AstNode[];
-    operatorStack: Token[];
+    body: Statement[];
+    isFinished: boolean;
 
     constructor(tokens: Token[]) {
         this.tokens = tokens;
         this.cursor = 0;
-        this.outputStack = [];
-        this.operatorStack = []
+        this.body = [];
+        this.isFinished = false;
     }
 
-
-    parse() {
-
-        if (this.tokens.length <= 0) return;
-
-        while (!this.isEnd()) {
-            const token = this.peek();
-            switch (token?.type) {
-                case TokenType.NUMBER:
-                    this.addNumber(this.next()!);
-                    break;
-                case TokenType.IDENTIFIER:
-                    this.addIdentifier(this.next()!);
-                    break;
-                case AstTokenType.OPEN_BRACKET:
-                    this.operatorStack.push(this.next()!);
-                    break;
-                case AstTokenType.CLOSED_BRACKET:
-                    this.next()!;
-                    this.reduceUntilOpenBracket();
-                    break;
-                default:
-                    if (this.isOperator(token)) {
-                        this.reduceByPrecedence(token!);
-                        this.operatorStack.push(this.next()!);
-                        break;
-                    }
-                    throw new Error('Unexpected token ' + JSON.stringify(token));
-
+    parse() : Program{
+        while(!this.isFinished) {
+            const stmt = this.parseStatement();
+            if (stmt) {
+                this.body.push(stmt);
             }
         }
-
-        while (this.operatorStack.length > 0) {
-            this.applyOperator();
-        }
-
-        return this.outputStack;
-
-    }
-
-    // Stack Function
-
-    private addNumber(token: Token) {
-
-        if (typeof (token.value) !== 'number') {
-            throw new Error('Unexpected token value ' + JSON.stringify(token));
-        }
-
-        this.outputStack.push({
-            type: 'literal',
-            value: token.value
-        })
-    }
-
-    private isOperator(token: Token | undefined): boolean {
-        return token !== undefined && Object.keys(AstOperator).includes(token.type);
-    }
-
-    private addIdentifier(token: Token) {
-        if (typeof (token.value) !== 'string') {
-            throw new Error('Unexpected token value ' + JSON.stringify(token));
-        }
-
-        this.outputStack.push({
-            type: 'variable',
-            value: token.value
-        });
-    }
-
-    // BRACKET FUNCTION
-
-    private reduceUntilOpenBracket() {
-       while (
-        this.operatorStack.length > 0 &&
-        this.operatorStack[this.operatorStack.length - 1]?.type !== AstTokenType.OPEN_BRACKET
-    ) {
-        this.applyOperator();
-    }
-
-    if (
-        this.operatorStack.length === 0 ||
-        this.operatorStack[this.operatorStack.length - 1]?.type !== AstTokenType.OPEN_BRACKET
-    ) {
-        throw new Error("Mismatched parentheses");
-    }
-
-        this.operatorStack.pop();
-    }
-
-    //OPERATOR FUNCTION
-
-    private reduceByPrecedence(token: Token) {
-        while (
-            this.operatorStack.length > 0 &&
-            this.operatorStack[this.operatorStack.length - 1]?.type !== TokenOperator.OPEN_BRACKET &&
-            this.getPrecedence(this.operatorStack[this.operatorStack.length - 1]) >= this.getPrecedence(token)
-        ) {
-            this.applyOperator();
+        return {
+            type: 'program',
+            body: this.body
         }
     }
 
-    private getPrecedence(token: Token | undefined): number {
-        if (token == undefined || token.value == undefined) {
-            throw new Error('Unexepected token not exist !');
-        }
+    // Statement function
 
+    private parseStatement() : Statement | undefined {
+        const token = this.peek();
 
-        return PriorizeOperator[token.value] ?? 0;
-    }
-
-    private applyOperator() {
-
-        const operator = this.operatorStack.pop();
-
-        if (!operator) throw new Error("Operator stack empty");
-
-        const right = this.outputStack.pop();
-        const left = this.outputStack.pop();
-                
-        if (
-            operator?.type === TokenOperator.OPEN_BRACKET ||
-            operator?.type === TokenOperator.CLOSED_BRACKET
-        ) {
-            throw new Error("Tried to apply a bracket as an operator");
-        }
-
-        if (!left || !right) throw new Error("Output stack missing operands");
-
-        if (typeof (operator.value) !== 'string') throw new Error("Operator not conformed!");
-
-        if (operator.type === AstTokenType.EQUAL) {
-            if (left.type !== 'variable') {
-                throw new Error("Left side of assignment must be a variable");
-            }
-
-            this.outputStack.push({
-                type: 'assignement',
-                left: left,
-                right: right
-            });
+        if (token == undefined) {
             return;
         }
 
-        this.outputStack.push({
-            type: 'binary',
-            operator: operator.value!,
-            left: left,
-            right: right,
-        });
+        switch(token!.type) {
+            case AstTokenType.PRINT:
+                return this.parsePrint();
+            default:
+                return this.parseExpressionStatement();
+        }
     }
 
+    private parsePrint(): PrintStatement {
+        const printToken = this.consume(AstTokenType.PRINT);
+        this.consume(AstTokenType.OPEN_BRACKET);
+        const expr = this.parseTermExpression();
+        this.consume(AstTokenType.CLOSED_BRACKET);
+        return {
+            type: 'print',
+            expression: expr
+        }
+    }
+
+    private parseExpressionStatement() : ExpressionStatement{
+        return {
+            type: 'expression',
+            expression: this.parseAssignement()
+        }
+    }
+
+    // Assignement function
+
+    private parseAssignement(): AssignementExpression {
+        let left = this.parseTermExpression();
+        this.consume(AstTokenType.EQUAL);
+        const right = this.parseTermExpression();
+
+        if (left.type !== 'variable') {
+            throw new Error(`Unexpected type for assignement: ` + JSON.stringify(left));
+        }
+
+        return {
+            type: 'assignement',
+            left: left,
+            right: right
+        }
+    }
+
+
+    // Binary function
+
+    private parseTermExpression() {
+         const operator = [AstTokenType.PLUS, AstTokenType.MINUS];
+        let left = this.parseFactorExpression();
+
+        while(this.include(operator)) {
+            const value = this.getOperator(operator); 
+            this.consume(value!);
+                left = {
+                    type: 'binary',
+                    operator: value?.toString()!,
+                    left: left,
+                    right: this.parseFactorExpression()
+                }            
+        }
+
+
+        return left;
+    }
+
+    private parseFactorExpression() : AstNode {
+        const operator = [AstTokenType.MULT, AstTokenType.DIVIDE];
+        let left = this.parseLitteral();
+
+        while(this.include(operator)) {
+            const value = this.getOperator(operator); 
+            this.consume(value!);
+                left = {
+                    type: 'binary',
+                    operator: value?.toString()!,
+                    left: left,
+                    right: this.parseLitteral()
+                }            
+        }
+
+
+        return left;
+    }
+
+    // LITTERAL FUNCTION 
+
+    private parseLitteral(): AstNode {
+        const token = this.peek();
+
+        switch(token!.type) {
+            case AstTokenType.NUMBER:
+                return this.parseNumber();
+            case AstTokenType.IDENTIFIER:
+                return this.parseIdentifier();
+            case AstTokenType.OPEN_BRACKET:
+                return this.parseBracket();
+            default:
+                throw new Error('Unexpected token: ' + JSON.stringify(token));
+        }
+    }
+
+    private parseNumber() : NumberLitteral {
+        const token = this.consume(AstTokenType.NUMBER);
+        
+        if (typeof(token.value) !== 'number') {
+            throw new Error('Unexpected value for this type of token');
+        }
+
+        return {
+            type: 'literal',
+            value : token.value 
+        }
+    }
+
+    private parseIdentifier() : IdentifierLitteral {
+       const token = this.consume(AstTokenType.IDENTIFIER);
+       if (typeof(token.value) !== 'string') {
+            throw new Error('Unexpected value for this type of token');
+       } 
+
+       return {
+        type: 'variable',
+        value: token.value
+       }
+    }
+
+    private parseBracket() : AstNode {
+        this.consume(AstTokenType.OPEN_BRACKET);
+        const expr = this.parseTermExpression();
+        this.consume(AstTokenType.CLOSED_BRACKET);
+
+        return expr;
+    }
 
     // UTILS FUNCTION
 
-    private peek() {
-        return this.tokens[this.cursor];
+    private peek() : Token | undefined {
+        if (this.cursor >= this.tokens.length) {
+            this.isFinished = true;
+        }
+
+        const token = this.tokens[this.cursor];
+        return token;
     }
 
-    private next() {
-        return this.tokens[this.cursor++];
+    private consume(expectedType: AstTokenType) : Token {
+        const token = this.peek();
+        if (token!.type !== expectedType) {
+            throw new Error('Unexpected type for token: ' + JSON.stringify(token));
+        }
+        this.cursor++;
+        return token!;
     }
 
-    private isEnd() {
-        return this.cursor >= this.tokens.length;
+    private include(operators : AstTokenType[]) : boolean {
+        return !! this.getOperator(operators);
+    }
+
+    private getOperator(operators : AstTokenType[]) : AstTokenType | undefined {
+        const token = this.peek();
+        return operators.find(op => token!.type == op)
     }
 
 }

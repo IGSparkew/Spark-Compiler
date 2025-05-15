@@ -1,21 +1,57 @@
-![plot](./assets/ascii-logo.png)
+# Spark Compilator
 
-To install dependencies:
+![Spark Logo](./assets/ascii-logo.png)
 
+A fast and efficient compiler built with Bun runtime.
+
+## Quick Start
+
+### 1. Installation
+Install project dependencies:
 ```bash
 bun install
 ```
 
-To run:
+### 2. Create Your Script
+- Add your script files in the `/script` folder
+- Use the `.spk` extension
 
+### 3. Compilation Options
+
+#### Basic Compilation
 ```bash
-bun run start
+bun run start:file your_file_name
+```
+Note: `.spk` extension is optional
+
+#### Debug Mode
+```bash
+bun run start:debug your_file_name
 ```
 
-To run (dev mode):
-
+#### Advanced Usage
+For custom compilation with flags:
 ```bash
-bun run dev
+bun run start:dev --file your_file_name
 ```
 
-This project was created using `bun init` in bun v1.2.6. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+#### Example Scripts
+Try example scripts:
+```bash
+bun run start:exemple example_name
+```
+
+## Available Flags
+
+| Flag | Description |
+|------|-------------|
+| `--file` | Specify input file (defaults to `/script` folder) |
+| `--debug` | Enable step-by-step debugging |
+| `--ascii` | Disable ASCII art output |
+| `--exemple` | Use examples from `/exemple` folder |
+
+## About
+
+made by IGSpakew
+
+Built with [Bun](https://bun.sh) v1.2.6 - A fast all-in-one JavaScript runtime.

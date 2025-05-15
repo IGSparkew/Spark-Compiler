@@ -5,7 +5,11 @@
   "private": true,
   "scripts": {
     "dev": "bun run --watch src/index.ts",
-    "start": "bun run src/index.ts"
+    "start:dev": "bun run src/index.ts",
+    "start:file": "bun run src/index.ts --file",
+    "start:debug": "bun run src/index.ts --ascii --debug --file",
+    "start:exemple": "bun run src/index.ts --exemple --file",
+    "exemple:print": "bun run start:exemple simple_print"
   },
   "devDependencies": {
     "@types/bun": "latest"

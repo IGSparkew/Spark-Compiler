@@ -6,7 +6,7 @@ import type { Statement } from "../parser/model/statement";
 
 export class Interpreter {
     program: Program;
-    variables: Map<string, AstNode>;
+    variables: Map<string, any>;
 
     constructor(program: Program) {
         this.program = program;
@@ -31,7 +31,7 @@ export class Interpreter {
         }
     }
 
-    private evalExpression(node: AstNode) {
+    private evalExpression(node: AstNode) : any {
             switch(node.type) {
                 case 'binary':
                     return this.evalBinary(node);
@@ -66,7 +66,7 @@ export class Interpreter {
             throw new Error(`Expected variable for assignement ` + JSON.stringify(node));
         }
 
-        return this.variables.set(node.left.value!, node.right)
+        return this.variables.set(node.left.value!, this.evalExpression(node.right));
     }
 
 

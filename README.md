@@ -1,4 +1,4 @@
-# sparkcompilator
+![plot](./assets/ascii-logo.png)
 
 To install dependencies:
 

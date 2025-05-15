@@ -1,6 +1,6 @@
 import * as fs from 'fs'; 
 
-const scriptFolderPathName = 'script';
+const scriptFolderPathName = 'scripts';
 const exempleFolderPathName = 'exemples';
 
 export function ScriptReader(argsValues : { [x: string]: string | boolean | (string | boolean)[] | undefined }) : string {

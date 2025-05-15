@@ -36,12 +36,12 @@ $$\   $$ |$$ |  $$ |$$  __$$ |$$ |      $$  _$$<        $$ |  $$\ $$ |  $$ |$$ |
           $$ |                                                                            $$ |                                  
           \__|                                                                            \__|                                  `);
         
-        }
-
-        console.log(`
+          
+          console.log(`
             by @IGSparkew. Copyright@${new Date().getFullYear()}
             LICENSE GNU AFFERO GENERAL PUBLIC LICENSE Version 3              
-        `);
+            `);   
+        }
 
         if (this.code.length == 0) {
             throw new Error('Code input empty');
@@ -66,7 +66,7 @@ $$\   $$ |$$ |  $$ |$$  __$$ |$$ |      $$  _$$<        $$ |  $$\ $$ |  $$ |$$ |
 
         if (this.debug) {
             console.log("===================Parser================");
-            console.log(this.program);
+            console.log(JSON.stringify(this.program));
         }
 
         if (this.debug) {

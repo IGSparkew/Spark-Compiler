@@ -1,5 +1,7 @@
 import { Compile } from "./compiler";
-
+import {parseArgs} from 'util'
+import { options } from "./options";
+import { ScriptReader } from "./reader/reader";
 /**
  * ################################################################################
  * #                                                                              #
@@ -19,7 +21,17 @@ import { Compile } from "./compiler";
  * Author IGSparkew
  */
 
+function main() {
 
-const code = `print(3+5)`;
+    const {values} = parseArgs({
+        args: Bun.argv,
+        options: options,
+        strict: true,
+        allowPositionals: true
+    })
 
-Compile(code);
+    const code = ScriptReader(values);
+    Compile(code , values.debug as boolean, !values.ascii as boolean);
+}
+
+main();

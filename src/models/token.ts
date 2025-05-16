@@ -22,4 +22,6 @@ export enum AstTokenType {
     SMALLER_OR_EQUAL="SMALLER_OR_EQUAL",
     NOT_EQUAL='NOT_EQUAL',
     SEMICOLON='SEMICOLON',
+    AND='AND',
+    OR='OR'
 }

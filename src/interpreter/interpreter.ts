@@ -40,7 +40,8 @@ export class Interpreter {
                 case 'assignement':
                     return this.evalAssignement(node);
                 case 'variable':
-                    return this.variables.get(node.value!);
+                    console.log(node.value);
+                    return this.variables.get(node.value as string);
                 case "string":
                     return node.value;
                 case 'logical':

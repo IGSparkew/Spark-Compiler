@@ -50,7 +50,7 @@ export class Parser {
     private parsePrint(): PrintStatement {
         const printToken = this.consume(AstTokenType.PRINT);
         this.consume(AstTokenType.OPEN_BRACKET);
-        const expr = this.parseLogicalExpression();
+        const expr = this.parseExpression();
         this.consume(AstTokenType.CLOSED_BRACKET);
         this.consume(AstTokenType.SEMICOLON);
         return {
@@ -60,7 +60,7 @@ export class Parser {
     }
 
     private parseExpressionStatement() : ExpressionStatement{
-        const expr = this.parseAssignement();
+        const expr = this.parseExpression();
         this.consume(AstTokenType.SEMICOLON);
         return {
             type: 'expression',
@@ -68,24 +68,31 @@ export class Parser {
         }
     }
 
+    private parseExpression(): AstNode {
+        return this.parseAssignement();
+    }
 
 
     // Assignement function
 
     private parseAssignement(): AstNode {
-        let left = this.parseTermExpression();
-        this.consume(AstTokenType.EQUAL);
-        const right = this.parseLogicalExpression();
+        let left = this.parseLogicalExpression();
+        if (this.peek()?.type == AstTokenType.EQUAL) {
+            this.consume(AstTokenType.EQUAL);
+            const right = this.parseAssignement();
 
-        if (left.type !== 'variable') {
-            throw new Error(`Unexpected type for assignement: ` + JSON.stringify(left));
-        }
+            if (left.type !== 'variable') {
+                throw new Error(`Unexpected type for assignement: ` + JSON.stringify(left));
+            }
 
-        return {
-            type: 'assignement',
-            left: left,
-            right: right
+            return {
+                type: 'assignement',
+                left: left,
+                right: right
+            }
         }
+        
+        return left;
     }
 
 
@@ -225,7 +232,7 @@ export class Parser {
     private consume(expectedType: AstTokenType) : Token {
         const token = this.peek();
         if (token!.type !== expectedType) {
-            throw new Error('Unexpected type for token: ' + JSON.stringify(token));
+            throw new Error('Unexpected type for token: ' + JSON.stringify(token) + 'The expected type is ' + expectedType.toString());
         }
         this.cursor++;
         return token!;

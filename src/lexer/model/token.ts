@@ -19,7 +19,9 @@ export enum TokenLogical {
     SMALLER = "<",
     GREATER_OR_EQUAL = ">=",
     SMALLER_OR_EQUAL = "<=",
-    NOT_EQUAL = "!="
+    NOT_EQUAL = "!=",
+    AND="&&",
+    OR="||"
 }
 
 export enum TokenType {

@@ -1,4 +1,4 @@
-import type { AssignementExpression, AstNode, BinaryExpression, IdentifierLitteral, NumberLitteral } from './model/ast';
+import type { AssignementExpression, AstNode, BinaryExpression, IdentifierLitteral, LogicalExpression, NumberLitteral, StringLitteral } from './model/ast';
 import type { ExpressionStatement, PrintStatement, Statement } from './model/statement';
 import type { Program } from '../models/program';
 import { AstTokenType, type Token } from '../models/token';
@@ -50,8 +50,9 @@ export class Parser {
     private parsePrint(): PrintStatement {
         const printToken = this.consume(AstTokenType.PRINT);
         this.consume(AstTokenType.OPEN_BRACKET);
-        const expr = this.parseTermExpression();
+        const expr = this.parseLogicalExpression();
         this.consume(AstTokenType.CLOSED_BRACKET);
+        this.consume(AstTokenType.SEMICOLON);
         return {
             type: 'print',
             expression: expr
@@ -59,18 +60,22 @@ export class Parser {
     }
 
     private parseExpressionStatement() : ExpressionStatement{
+        const expr = this.parseAssignement();
+        this.consume(AstTokenType.SEMICOLON);
         return {
             type: 'expression',
-            expression: this.parseAssignement()
+            expression: expr
         }
     }
 
+
+
     // Assignement function
 
-    private parseAssignement(): AssignementExpression {
+    private parseAssignement(): AstNode {
         let left = this.parseTermExpression();
         this.consume(AstTokenType.EQUAL);
-        const right = this.parseTermExpression();
+        const right = this.parseLogicalExpression();
 
         if (left.type !== 'variable') {
             throw new Error(`Unexpected type for assignement: ` + JSON.stringify(left));
@@ -124,6 +129,24 @@ export class Parser {
         return left;
     }
 
+    private parseLogicalExpression() : AstNode {
+        let left = this.parseTermExpression();
+        const operators = [AstTokenType.SAME, AstTokenType.NOT_EQUAL, AstTokenType.GREATER, AstTokenType.SMALLER];
+        while(this.include(operators)) {
+            const operator = this.consume(this.getOperator(operators)!);
+            const right = this.parseTermExpression()
+            left = {
+                type:'logical',
+                operator: operator.type as string,
+                left: left,
+                right: right
+            }
+        }
+        
+
+        return left;
+    }
+
     // LITTERAL FUNCTION 
 
     private parseLitteral(): AstNode {
@@ -136,6 +159,8 @@ export class Parser {
                 return this.parseIdentifier();
             case AstTokenType.OPEN_BRACKET:
                 return this.parseBracket();
+            case AstTokenType.STRING:
+                return this.parseString();
             default:
                 throw new Error('Unexpected token: ' + JSON.stringify(token));
         }
@@ -164,6 +189,18 @@ export class Parser {
         type: 'variable',
         value: token.value
        }
+    }
+
+    private parseString() : StringLitteral {
+        const token = this.consume(AstTokenType.STRING);
+        if (typeof(token.value) !== 'string') {
+            throw new Error('Unexpected value for this type of token');
+        }
+        
+        return {
+            type: 'string',
+            value: token.value
+        }
     }
 
     private parseBracket() : AstNode {

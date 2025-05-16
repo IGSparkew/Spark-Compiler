@@ -71,7 +71,6 @@ $$\   $$ |$$ |  $$ |$$  __$$ |$$ |      $$  _$$<        $$ |  $$\ $$ |  $$ |$$ |
 
         if (this.debug) {
             console.log("===================Result================");
-
         }
 
         Interprete(this.program);

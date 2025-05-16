@@ -1,5 +1,5 @@
 import { AstTokenType } from "../models/token";
-import { type AssignementExpression, type AstNode, type BinaryExpression } from "../parser/model/ast";
+import { type AssignementExpression, type AstNode, type BinaryExpression, type LogicalExpression } from "../parser/model/ast";
 import type { Program } from "../models/program";
 import type { Statement } from "../parser/model/statement";
 
@@ -35,13 +35,16 @@ export class Interpreter {
             switch(node.type) {
                 case 'binary':
                     return this.evalBinary(node);
-                    break;
                 case 'literal':
                     return node.value;
                 case 'assignement':
                     return this.evalAssignement(node);
                 case 'variable':
                     return this.variables.get(node.value!);
+                case "string":
+                    return node.value;
+                case 'logical':
+                    return this.evalLogical(node);
             }
 
     }
@@ -59,6 +62,23 @@ export class Interpreter {
         }
 
         throw new Error(`Unexpected operator ${node.type}`);
+    }
+
+    private evalLogical(node: LogicalExpression) : any {
+        switch(node.operator) {
+            case AstTokenType.SAME:
+                return this.evalExpression(node.left) == this.evalExpression(node.right);
+            case AstTokenType.NOT_EQUAL:
+                return this.evalExpression(node.left) != this.evalExpression(node.right);
+            case AstTokenType.GREATER:
+                return this.evalExpression(node.left) > this.evalExpression(node.right);
+            case AstTokenType.SMALLER:
+                return this.evalExpression(node.left) < this.evalExpression(node.right);
+            case AstTokenType.GREATER_OR_EQUAL:
+                return this.evalExpression(node.left) >= this.evalExpression(node.right);
+            case AstTokenType.SMALLER_OR_EQUAL:
+                return this.evalExpression(node.left) <= this.evalExpression(node.right);        
+        }
     }
 
     private evalAssignement(node: AssignementExpression) {

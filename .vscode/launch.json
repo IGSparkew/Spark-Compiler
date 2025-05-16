@@ -4,6 +4,7 @@
         {
             "type": "bun",
             "request": "launch",
+            "args": ["--debug","--ascii", "--file", "test"],
             "name": "Debug Bun",
             "program": "${workspaceFolder}/src/index.ts",
             "cwd": "${workspaceFolder}",

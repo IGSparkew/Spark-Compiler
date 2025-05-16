@@ -92,7 +92,7 @@ export class Lexer {
     private setString() {
         let start = ++this.cursor;
         while(this.cursor < this.code.length && this.code[this.cursor] !== TokenOperator.QUOTES) this.cursor++;
-        if (this.code[this.cursor] !== TokenOperator.QUOTES) throw new Error('Untermined String starting at ' + start);
+        if (this.code[this.cursor] !== TokenOperator.QUOTES) throw new Error('Unterminated String starting at ' + start);
         this.tokens.push({type: TokenType.STRING, value: this.code.slice(start-1, this.cursor)});
         this.cursor++;
     }

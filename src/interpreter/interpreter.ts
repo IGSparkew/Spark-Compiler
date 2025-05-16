@@ -35,13 +35,14 @@ export class Interpreter {
             switch(node.type) {
                 case 'binary':
                     return this.evalBinary(node);
-                    break;
                 case 'literal':
                     return node.value;
                 case 'assignement':
                     return this.evalAssignement(node);
                 case 'variable':
                     return this.variables.get(node.value!);
+                case "string":
+                    return node.value;
             }
 
     }

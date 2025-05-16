@@ -4,7 +4,7 @@ import { filter_character, isAlpha, isDigit } from "../utils";
 import { getNumber } from "./number";
 import { getAlpha } from "./alpha";
 import { getStatement } from "./statement";
-import type { Token } from "../models/token";
+import { type Token } from "../models/token";
 
 export class Lexer {
     cursor: number;
@@ -29,6 +29,12 @@ export class Lexer {
 
         let tokend = false;
         let types = Object.entries(TokenOperator);
+
+
+        if (this.character == TokenOperator.QUOTES) {
+            this.setString();
+            continue;
+        }
 
         for(let [key, value] of types) {
             if (value == this.character) {
@@ -81,6 +87,14 @@ export class Lexer {
             type: type,
             value: value
         });
+    }
+
+    private setString() {
+        let start = ++this.cursor;
+        while(this.cursor < this.code.length && this.code[this.cursor] !== TokenOperator.QUOTES) this.cursor++;
+        if (this.code[this.cursor] !== TokenOperator.QUOTES) throw new Error('Untermined String starting at ' + start);
+        this.tokens.push({type: TokenType.STRING, value: this.code.slice(start-1, this.cursor)});
+        this.cursor++;
     }
 
 }

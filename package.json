@@ -9,7 +9,9 @@
     "start:file": "bun run src/index.ts --file",
     "start:debug": "bun run src/index.ts --ascii --debug --file",
     "start:exemple": "bun run src/index.ts --exemple --file",
-    "exemple:print": "bun run start:exemple simple_print"
+    "exemple:print": "bun run start:exemple simple_print",
+    "exemple:calcul": "bun run start:exemple simple_calcul"
+
   },
   "devDependencies": {
     "@types/bun": "latest"

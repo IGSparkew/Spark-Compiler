@@ -1,4 +1,4 @@
-import type { AssignementExpression, AstNode, BinaryExpression, IdentifierLitteral, NumberLitteral } from './model/ast';
+import type { AssignementExpression, AstNode, BinaryExpression, IdentifierLitteral, NumberLitteral, StringLitteral } from './model/ast';
 import type { ExpressionStatement, PrintStatement, Statement } from './model/statement';
 import type { Program } from '../models/program';
 import { AstTokenType, type Token } from '../models/token';
@@ -136,6 +136,8 @@ export class Parser {
                 return this.parseIdentifier();
             case AstTokenType.OPEN_BRACKET:
                 return this.parseBracket();
+            case AstTokenType.STRING:
+                return this.parseString();
             default:
                 throw new Error('Unexpected token: ' + JSON.stringify(token));
         }
@@ -164,6 +166,18 @@ export class Parser {
         type: 'variable',
         value: token.value
        }
+    }
+
+    private parseString() : StringLitteral {
+        const token = this.consume(AstTokenType.STRING);
+        if (typeof(token.value) !== 'string') {
+            throw new Error('Unexpected value for this type of token');
+        }
+        
+        return {
+            type: 'string',
+            value: token.value
+        }
     }
 
     private parseBracket() : AstNode {

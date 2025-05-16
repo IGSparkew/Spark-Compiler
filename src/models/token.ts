@@ -13,5 +13,7 @@ export enum AstTokenType {
     MINUS = 'MINUS' , 
     MULT='MULT' , 
     DIVIDE = 'DIVIDE' , 
-    EQUAL = 'EQUAL'
+    EQUAL = 'EQUAL',
+    STRING= 'STRING'
+
 }

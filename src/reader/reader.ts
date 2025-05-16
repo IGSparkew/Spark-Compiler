@@ -20,6 +20,5 @@ export function ScriptReader(argsValues : { [x: string]: string | boolean | (str
         
         file = argsValues.file as string;
 
-
         return fs.readFileSync('./' + folderPathName + "/" + file + ".spk", 'utf-8');
 }

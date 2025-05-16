@@ -5,12 +5,15 @@ export enum TokenOperator {
     DIVIDE="/",
     OPEN_BRACKET="(",
     CLOSED_BRACKET=")",
-    EQUAL = "="
+    EXCLAMATION="!",
+    EQUAL = "=",
+    QUOTES= '"',
 }
 
 export enum TokenType {
     NUMBER= "NUMBER",
-    IDENTIFIER="IDENTIFIER"
+    IDENTIFIER="IDENTIFIER",
+    STRING = "STRING"
 }
 
 export enum TokenStatement {

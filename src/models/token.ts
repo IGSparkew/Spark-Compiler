@@ -22,6 +22,10 @@ export enum AstTokenType {
     SMALLER_OR_EQUAL="SMALLER_OR_EQUAL",
     NOT_EQUAL='NOT_EQUAL',
     SEMICOLON='SEMICOLON',
+    OPEN_BRACE="OPEN_BRACE",
+    CLOSED_BRACE="CLOSED_BRACE",
     AND='AND',
-    OR='OR'
+    OR='OR',
+    IF='IF',
+    ELSE='ELSE'
 }

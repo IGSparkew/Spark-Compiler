@@ -1,5 +1,5 @@
 import type { AssignementExpression, AstNode, BinaryExpression, IdentifierLitteral, LogicalExpression, NumberLitteral, StringLitteral } from './model/ast';
-import type { ExpressionStatement, PrintStatement, Statement } from './model/statement';
+import type { BlockStatement, ExpressionStatement, IfStatement, PrintStatement, Statement } from './model/statement';
 import type { Program } from '../models/program';
 import { AstTokenType, type Token } from '../models/token';
 
@@ -42,6 +42,8 @@ export class Parser {
         switch(token!.type) {
             case AstTokenType.PRINT:
                 return this.parsePrint();
+            case AstTokenType.IF:
+                return this.parseIf();
             default:
                 return this.parseExpressionStatement();
         }
@@ -57,6 +59,51 @@ export class Parser {
             type: 'print',
             expression: expr
         }
+    }
+
+    private parseIf() : IfStatement {
+        this.consume(AstTokenType.IF);
+        this.consume(AstTokenType.OPEN_BRACKET);
+        const condition = this.parseExpression();
+        this.consume(AstTokenType.CLOSED_BRACKET);
+        const consequence = this.parseBlockStatement();
+        
+        let alternate = undefined;
+        
+        if (this.peek()?.type == AstTokenType.ELSE) {
+            this.consume(AstTokenType.ELSE);
+            if (this.peek()?.type == AstTokenType.IF) {
+                alternate = this.parseIf();
+            } else {
+                alternate = this.parseBlockStatement();
+            }
+        }
+        
+        return {
+            type: 'if',
+            condition: condition,
+            consequence: consequence,
+            alternate: alternate
+        }
+
+    }
+
+    private parseBlockStatement(): BlockStatement {
+        this.consume(AstTokenType.OPEN_BRACE);
+        const statements : Statement[] = [];
+
+         while(this.peek()?.type !== AstTokenType.CLOSED_BRACE && !this.isFinished) {
+            const smt = this.parseStatement();
+            if (smt) statements.push(smt);
+        }
+
+        this.consume(AstTokenType.CLOSED_BRACE);
+
+        return {
+            type: 'block',
+            statements,
+        }
+
     }
 
     private parseExpressionStatement() : ExpressionStatement{
@@ -76,7 +123,7 @@ export class Parser {
     // Assignement function
 
     private parseAssignement(): AstNode {
-        let left = this.parseLogicalExpression();
+        let left = this.parseLogicalOrExpression();
         if (this.peek()?.type == AstTokenType.EQUAL) {
             this.consume(AstTokenType.EQUAL);
             const right = this.parseAssignement();
@@ -136,9 +183,11 @@ export class Parser {
         return left;
     }
 
+    // LOGICAL EXPRESSION
+
     private parseLogicalExpression() : AstNode {
         let left = this.parseTermExpression();
-        const operators = [AstTokenType.SAME, AstTokenType.NOT_EQUAL, AstTokenType.GREATER, AstTokenType.SMALLER];
+        const operators = [AstTokenType.SAME, AstTokenType.NOT_EQUAL, AstTokenType.GREATER, AstTokenType.SMALLER, AstTokenType.GREATER_OR_EQUAL, AstTokenType.SMALLER_OR_EQUAL];
         while(this.include(operators)) {
             const operator = this.consume(this.getOperator(operators)!);
             const right = this.parseTermExpression()
@@ -150,6 +199,38 @@ export class Parser {
             }
         }
         
+
+        return left;
+    }
+
+    private parseLogicalOrExpression(): AstNode {
+        let left = this.parseLogicalAndExpression();
+        while(this.peek()?.type == AstTokenType.OR) {
+            const op = this.consume(AstTokenType.OR);
+            const right = this.parseLogicalAndExpression();
+            left = {
+                type: 'logical',
+                operator: op.type,
+                left,
+                right
+            }
+        }
+
+        return left;
+    }
+
+    private parseLogicalAndExpression(): AstNode {
+        let left = this.parseLogicalExpression();
+        while(this.peek()?.type == AstTokenType.AND) {
+            const op = this.consume(AstTokenType.AND);
+            const right = this.parseLogicalExpression();
+            left = {
+                type: 'logical',
+                operator: op.type,
+                left,
+                right
+            }
+        }
 
         return left;
     }

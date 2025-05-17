@@ -1,7 +1,7 @@
 import { AstTokenType } from "../models/token";
 import { type AssignementExpression, type AstNode, type BinaryExpression, type LogicalExpression } from "../parser/model/ast";
 import type { Program } from "../models/program";
-import type { Statement } from "../parser/model/statement";
+import type { BlockStatement, ExpressionStatement, IfStatement, PrintStatement, Statement } from "../parser/model/statement";
 
 
 export class Interpreter {
@@ -16,18 +16,49 @@ export class Interpreter {
     interprete() {
 
         for(const statement of this.program.body) {
+           this.execute(statement);
+        }
+    }
 
-            switch((statement as Statement).type) {
+    private execute(statement: Statement) {
+         switch(statement.type) {
                 case "print":
-                    console.log("> " + this.evalExpression(statement.expression));
+                    console.log("> " + this.evalExpression((statement as PrintStatement).expression));
+                    break;
+                case "if":
+                    this.evalIf(statement as IfStatement);
                     break;
                 case "expression":
-                    this.evalExpression(statement.expression);
+                    this.evalExpression((statement as ExpressionStatement).expression);
                     break;
                 default:
-                    throw new Error(`Unexpected statement ${statement.type}`);
+                    throw new Error(`Unexpected statement ${(statement as Statement).type}`);
             }
+    }
 
+    private evalIf(smt: IfStatement) : any {
+        const cond = this.evalExpression(smt.condition);
+        if (cond) {
+            this.evalBlockStatement(smt.consequence);
+        } else {
+            if (smt.alternate) {
+                switch(smt.alternate.type) {
+                    case "if":
+                        this.evalIf(smt.alternate);
+                        break;
+                    case 'block':
+                        this.evalBlockStatement(smt.alternate);
+                        break;
+                }
+            }
+        }
+
+
+    }
+
+    private evalBlockStatement(block: BlockStatement) {
+        for (let smt of block.statements) {
+            this.execute(smt);
         }
     }
 
@@ -40,7 +71,6 @@ export class Interpreter {
                 case 'assignement':
                     return this.evalAssignement(node);
                 case 'variable':
-                    console.log(node.value);
                     return this.variables.get(node.value as string);
                 case "string":
                     return node.value;
@@ -78,7 +108,11 @@ export class Interpreter {
             case AstTokenType.GREATER_OR_EQUAL:
                 return this.evalExpression(node.left) >= this.evalExpression(node.right);
             case AstTokenType.SMALLER_OR_EQUAL:
-                return this.evalExpression(node.left) <= this.evalExpression(node.right);        
+                return this.evalExpression(node.left) <= this.evalExpression(node.right);
+            case AstTokenType.AND:
+                return this.evalExpression(node.left) && this.evalExpression(node.right);
+            case AstTokenType.OR:
+                return this.evalExpression(node.left) || this.evalExpression(node.left);        
         }
     }
 

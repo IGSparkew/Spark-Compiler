@@ -10,7 +10,9 @@ export enum TokenOperator {
     QUOTES= '"',
     GREATER=">",
     SMALLER="<",
-    SEMICOLON=";"
+    SEMICOLON=";",
+    OPEN_BRACE="{",
+    CLOSED_BRACE="}" 
 }
 
 export enum TokenLogical {
@@ -31,5 +33,7 @@ export enum TokenType {
 }
 
 export enum TokenStatement {
-    PRINT = "print"
+    PRINT = "print",
+    IF="if",
+    ELSE="else",
 }

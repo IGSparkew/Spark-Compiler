@@ -5,6 +5,7 @@ import { getNumber } from "./number";
 import { getAlpha } from "./alpha";
 import { getStatement } from "./statement";
 import { type Token } from "../models/token";
+import { getBoolean } from "./boolean";
 
 export class Lexer {
     cursor: number;
@@ -117,8 +118,12 @@ export class Lexer {
 
         const identifier = getStatement(value);
 
+        const booleanValue = getBoolean(value);
+
         if (identifier !== undefined) {
             this.tokens.push(identifier)
+        } else if (booleanValue !== undefined) {
+            this.tokens.push(booleanValue);
         } else {
             this.add_token(TokenType.IDENTIFIER, value);
         }

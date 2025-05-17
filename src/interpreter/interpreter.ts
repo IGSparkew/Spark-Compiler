@@ -74,6 +74,8 @@ export class Interpreter {
                     return this.variables.get(node.value as string);
                 case "string":
                     return node.value;
+                case 'boolean':
+                    return node.value;
                 case 'logical':
                     return this.evalLogical(node);
                 case 'unary_logical':

@@ -28,8 +28,14 @@ export enum TokenLogical {
 
 export enum TokenType {
     NUMBER= "NUMBER",
-    IDENTIFIER="IDENTIFIER",
-    STRING = "STRING"
+    IDENTIFIER= "IDENTIFIER",
+    STRING = "STRING",
+    BOOLEAN= "BOOLEAN"
+}
+
+export enum TokenBoolean {
+    TRUE = "true",
+    FALSE = "false"
 }
 
 export enum TokenStatement {

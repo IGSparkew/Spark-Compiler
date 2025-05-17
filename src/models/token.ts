@@ -1,6 +1,6 @@
 export type Token = {
     type: string,
-    value?: number | string
+    value?: number | string | boolean
 }
 
 export enum AstTokenType {
@@ -28,5 +28,6 @@ export enum AstTokenType {
     OR='OR',
     IF='IF',
     ELSE='ELSE',
-    EXCLAMATION='EXCLAMATION'
+    EXCLAMATION='EXCLAMATION',
+    BOOLEAN='BOOLEAN'
 }

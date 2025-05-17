@@ -1,8 +1,7 @@
-import type { AssignementExpression, AstNode, BinaryExpression, IdentifierLitteral, LogicalExpression, NumberLitteral, StringLitteral } from './model/ast';
+import type { AssignementExpression, AstNode, BinaryExpression, BooleanLitteral, IdentifierLitteral, LogicalExpression, NumberLitteral, StringLitteral } from './model/ast';
 import type { BlockStatement, ExpressionStatement, IfStatement, PrintStatement, Statement } from './model/statement';
 import type { Program } from '../models/program';
 import { AstTokenType, type Token } from '../models/token';
-import type { UnaryExpression } from 'typescript';
 
 
 export class Parser {
@@ -275,6 +274,8 @@ export class Parser {
                 return this.parseBracket();
             case AstTokenType.STRING:
                 return this.parseString();
+            case AstTokenType.BOOLEAN:
+                return this.parseBoolean();
             default:
                 throw new Error('Unexpected token: ' + JSON.stringify(token));
         }
@@ -313,6 +314,18 @@ export class Parser {
         
         return {
             type: 'string',
+            value: token.value
+        }
+    }
+
+    private parseBoolean(): BooleanLitteral {
+        const token = this.consume(AstTokenType.BOOLEAN);
+        if (typeof(token.value) !== 'boolean') {
+            throw new Error('Unexpected value for this type of token');
+        }
+
+        return {
+            type: 'boolean',
             value: token.value
         }
     }

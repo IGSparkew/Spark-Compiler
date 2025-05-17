@@ -1,4 +1,4 @@
-export type AstNode = AssignementExpression | BinaryExpression | NumberLitteral | StringLitteral | IdentifierLitteral | LogicalExpression | UnaryExpression | UnaryLogicalExpression;
+export type AstNode = AssignementExpression | BinaryExpression | NumberLitteral | StringLitteral | IdentifierLitteral | LogicalExpression | UnaryExpression | UnaryLogicalExpression | BooleanLitteral;
 
 export interface BinaryExpression {
     type: 'binary',
@@ -40,6 +40,11 @@ export interface NumberLitteral {
 export interface StringLitteral {
     type: 'string';
     value?: string | undefined;
+}
+
+export interface BooleanLitteral {
+    type : 'boolean';
+    value?: boolean | undefined
 }
 
 export interface IdentifierLitteral {

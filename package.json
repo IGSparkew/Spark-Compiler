@@ -10,8 +10,10 @@
     "start:debug": "bun run src/index.ts --ascii --debug --file",
     "start:exemple": "bun run src/index.ts --exemple --file",
     "exemple:print": "bun run start:exemple simple_print",
-    "exemple:calcul": "bun run start:exemple simple_calcul"
-
+    "exemple:calcul": "bun run start:exemple simple_calcul",
+    "exemple:if": "bun run start:exemple simple_if",
+    "exemple:if_else": "bun run start:exemple if_else",
+    "exemple:rev_bool": "bun run start:exemple reverse_boolean_statement"
   },
   "devDependencies": {
     "@types/bun": "latest"

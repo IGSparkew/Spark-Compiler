@@ -1,0 +1,9 @@
+a=18;
+
+if (a >= 18) {
+    print("your are an adult!");
+} else if (a > 15) {
+    print("you are a teenager!");
+} else {
+    print("you are a children!");
+}

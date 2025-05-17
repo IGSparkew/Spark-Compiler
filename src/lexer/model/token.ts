@@ -10,7 +10,9 @@ export enum TokenOperator {
     QUOTES= '"',
     GREATER=">",
     SMALLER="<",
-    SEMICOLON=";"
+    SEMICOLON=";",
+    OPEN_BRACE="{",
+    CLOSED_BRACE="}" 
 }
 
 export enum TokenLogical {
@@ -19,15 +21,25 @@ export enum TokenLogical {
     SMALLER = "<",
     GREATER_OR_EQUAL = ">=",
     SMALLER_OR_EQUAL = "<=",
-    NOT_EQUAL = "!="
+    NOT_EQUAL = "!=",
+    AND="&&",
+    OR="||"
 }
 
 export enum TokenType {
     NUMBER= "NUMBER",
-    IDENTIFIER="IDENTIFIER",
-    STRING = "STRING"
+    IDENTIFIER= "IDENTIFIER",
+    STRING = "STRING",
+    BOOLEAN= "BOOLEAN"
+}
+
+export enum TokenBoolean {
+    TRUE = "true",
+    FALSE = "false"
 }
 
 export enum TokenStatement {
-    PRINT = "print"
+    PRINT = "print",
+    IF="if",
+    ELSE="else",
 }

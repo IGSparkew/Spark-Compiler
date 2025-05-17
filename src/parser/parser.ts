@@ -1,5 +1,5 @@
-import type { AssignementExpression, AstNode, BinaryExpression, IdentifierLitteral, LogicalExpression, NumberLitteral, StringLitteral } from './model/ast';
-import type { ExpressionStatement, PrintStatement, Statement } from './model/statement';
+import type { AssignementExpression, AstNode, BinaryExpression, BooleanLitteral, IdentifierLitteral, LogicalExpression, NumberLitteral, StringLitteral } from './model/ast';
+import type { BlockStatement, ExpressionStatement, IfStatement, PrintStatement, Statement } from './model/statement';
 import type { Program } from '../models/program';
 import { AstTokenType, type Token } from '../models/token';
 
@@ -42,6 +42,8 @@ export class Parser {
         switch(token!.type) {
             case AstTokenType.PRINT:
                 return this.parsePrint();
+            case AstTokenType.IF:
+                return this.parseIf();
             default:
                 return this.parseExpressionStatement();
         }
@@ -50,7 +52,7 @@ export class Parser {
     private parsePrint(): PrintStatement {
         const printToken = this.consume(AstTokenType.PRINT);
         this.consume(AstTokenType.OPEN_BRACKET);
-        const expr = this.parseLogicalExpression();
+        const expr = this.parseExpression();
         this.consume(AstTokenType.CLOSED_BRACKET);
         this.consume(AstTokenType.SEMICOLON);
         return {
@@ -59,8 +61,53 @@ export class Parser {
         }
     }
 
+    private parseIf() : IfStatement {
+        this.consume(AstTokenType.IF);
+        this.consume(AstTokenType.OPEN_BRACKET);
+        const condition = this.parseExpression();
+        this.consume(AstTokenType.CLOSED_BRACKET);
+        const consequence = this.parseBlockStatement();
+        
+        let alternate = undefined;
+        
+        if (this.peek()?.type == AstTokenType.ELSE) {
+            this.consume(AstTokenType.ELSE);
+            if (this.peek()?.type == AstTokenType.IF) {
+                alternate = this.parseIf();
+            } else {
+                alternate = this.parseBlockStatement();
+            }
+        }
+        
+        return {
+            type: 'if',
+            condition: condition,
+            consequence: consequence,
+            alternate: alternate
+        }
+
+    }
+
+    private parseBlockStatement(): BlockStatement {
+        this.consume(AstTokenType.OPEN_BRACE);
+        const statements : Statement[] = [];
+
+         while(this.peek()?.type !== AstTokenType.CLOSED_BRACE && !this.isFinished) {
+            const smt = this.parseStatement();
+            if (smt) statements.push(smt);
+        }
+
+        this.consume(AstTokenType.CLOSED_BRACE);
+
+        return {
+            type: 'block',
+            statements,
+        }
+
+    }
+
     private parseExpressionStatement() : ExpressionStatement{
-        const expr = this.parseAssignement();
+        const expr = this.parseExpression();
         this.consume(AstTokenType.SEMICOLON);
         return {
             type: 'expression',
@@ -68,31 +115,38 @@ export class Parser {
         }
     }
 
+    private parseExpression(): AstNode {
+        return this.parseAssignement();
+    }
 
 
     // Assignement function
 
     private parseAssignement(): AstNode {
-        let left = this.parseTermExpression();
-        this.consume(AstTokenType.EQUAL);
-        const right = this.parseLogicalExpression();
+        let left = this.parseLogicalOrExpression();
+        if (this.peek()?.type == AstTokenType.EQUAL) {
+            this.consume(AstTokenType.EQUAL);
+            const right = this.parseAssignement();
 
-        if (left.type !== 'variable') {
-            throw new Error(`Unexpected type for assignement: ` + JSON.stringify(left));
-        }
+            if (left.type !== 'variable') {
+                throw new Error(`Unexpected type for assignement: ` + JSON.stringify(left));
+            }
 
-        return {
-            type: 'assignement',
-            left: left,
-            right: right
+            return {
+                type: 'assignement',
+                left: left,
+                right: right
+            }
         }
+        
+        return left;
     }
 
 
     // Binary function
 
     private parseTermExpression() {
-         const operator = [AstTokenType.PLUS, AstTokenType.MINUS];
+        const operator = [AstTokenType.PLUS, AstTokenType.MINUS];
         let left = this.parseFactorExpression();
 
         while(this.include(operator)) {
@@ -112,7 +166,7 @@ export class Parser {
 
     private parseFactorExpression() : AstNode {
         const operator = [AstTokenType.MULT, AstTokenType.DIVIDE];
-        let left = this.parseLitteral();
+        let left = this.parseUnaryExpression();
 
         while(this.include(operator)) {
             const value = this.getOperator(operator); 
@@ -121,7 +175,7 @@ export class Parser {
                     type: 'binary',
                     operator: value?.toString()!,
                     left: left,
-                    right: this.parseLitteral()
+                    right: this.parseUnaryExpression()
                 }            
         }
 
@@ -129,12 +183,27 @@ export class Parser {
         return left;
     }
 
+    private parseUnaryExpression() : AstNode {
+        const operator = [AstTokenType.PLUS, AstTokenType.MINUS];
+        if (this.include(operator)) {
+            return {
+                type: 'unary',
+                operator: this.consume(this.getOperator(operator)!).type,
+                left: this.parseLitteral()
+            }
+        }
+
+        return this.parseLitteral();
+    }
+
+    // LOGICAL EXPRESSION
+
     private parseLogicalExpression() : AstNode {
-        let left = this.parseTermExpression();
-        const operators = [AstTokenType.SAME, AstTokenType.NOT_EQUAL, AstTokenType.GREATER, AstTokenType.SMALLER];
+        let left = this.parseUnaryLogicalExpression();
+        const operators = [AstTokenType.SAME, AstTokenType.NOT_EQUAL, AstTokenType.GREATER, AstTokenType.SMALLER, AstTokenType.GREATER_OR_EQUAL, AstTokenType.SMALLER_OR_EQUAL];
         while(this.include(operators)) {
             const operator = this.consume(this.getOperator(operators)!);
-            const right = this.parseTermExpression()
+            const right = this.parseUnaryLogicalExpression()
             left = {
                 type:'logical',
                 operator: operator.type as string,
@@ -143,6 +212,50 @@ export class Parser {
             }
         }
         
+
+        return left;
+    }
+
+    private parseUnaryLogicalExpression() : AstNode {
+        if (this.peek()?.type == AstTokenType.EXCLAMATION) {
+            return {
+                type: 'unary_logical',
+                operator: this.consume(AstTokenType.EXCLAMATION).type,
+                left: this.parseTermExpression()
+            }
+        }
+
+        return this.parseTermExpression();
+    }
+
+    private parseLogicalOrExpression(): AstNode {
+        let left = this.parseLogicalAndExpression();
+        while(this.peek()?.type == AstTokenType.OR) {
+            const op = this.consume(AstTokenType.OR);
+            const right = this.parseLogicalAndExpression();
+            left = {
+                type: 'logical',
+                operator: op.type,
+                left,
+                right
+            }
+        }
+
+        return left;
+    }
+
+    private parseLogicalAndExpression(): AstNode {
+        let left = this.parseLogicalExpression();
+        while(this.peek()?.type == AstTokenType.AND) {
+            const op = this.consume(AstTokenType.AND);
+            const right = this.parseLogicalExpression();
+            left = {
+                type: 'logical',
+                operator: op.type,
+                left,
+                right
+            }
+        }
 
         return left;
     }
@@ -161,6 +274,8 @@ export class Parser {
                 return this.parseBracket();
             case AstTokenType.STRING:
                 return this.parseString();
+            case AstTokenType.BOOLEAN:
+                return this.parseBoolean();
             default:
                 throw new Error('Unexpected token: ' + JSON.stringify(token));
         }
@@ -203,6 +318,18 @@ export class Parser {
         }
     }
 
+    private parseBoolean(): BooleanLitteral {
+        const token = this.consume(AstTokenType.BOOLEAN);
+        if (typeof(token.value) !== 'boolean') {
+            throw new Error('Unexpected value for this type of token');
+        }
+
+        return {
+            type: 'boolean',
+            value: token.value
+        }
+    }
+
     private parseBracket() : AstNode {
         this.consume(AstTokenType.OPEN_BRACKET);
         const expr = this.parseTermExpression();
@@ -225,7 +352,7 @@ export class Parser {
     private consume(expectedType: AstTokenType) : Token {
         const token = this.peek();
         if (token!.type !== expectedType) {
-            throw new Error('Unexpected type for token: ' + JSON.stringify(token));
+            throw new Error('Unexpected type for token: ' + JSON.stringify(token) + 'The expected type is ' + expectedType.toString());
         }
         this.cursor++;
         return token!;

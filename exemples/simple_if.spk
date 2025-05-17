@@ -1,0 +1,4 @@
+a = 18;
+if (a >= 18) {
+    print("you are an adult!");
+}

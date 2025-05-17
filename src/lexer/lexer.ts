@@ -5,6 +5,7 @@ import { getNumber } from "./number";
 import { getAlpha } from "./alpha";
 import { getStatement } from "./statement";
 import { type Token } from "../models/token";
+import { getBoolean } from "./boolean";
 
 export class Lexer {
     cursor: number;
@@ -41,13 +42,9 @@ export class Lexer {
             continue;
         }
 
-        if (this.character == TokenOperator.EXCLAMATION) {
-            if (this.code[this.cursor] == TokenOperator.EQUAL) {
-                this.add_token(findKeyOfTokenLogical(TokenLogical.NOT_EQUAL)!, TokenLogical.NOT_EQUAL);
-                continue;
-            } else {
-                throw new Error('Unexpected expression need = after !');
-            }
+        if (this.character == TokenOperator.EXCLAMATION && this.code[this.cursor] == TokenOperator.EQUAL) {
+            this.add_token(findKeyOfTokenLogical(TokenLogical.NOT_EQUAL)!, TokenLogical.NOT_EQUAL);
+            continue;
         }
 
         if (this.character == TokenOperator.GREATER) {
@@ -64,7 +61,7 @@ export class Lexer {
         if (this.character == TokenOperator.SMALLER) {
             if (this.code[this.cursor] == TokenOperator.EQUAL) {
                 this.add_token(findKeyOfTokenLogical(TokenLogical.SMALLER_OR_EQUAL)!, TokenLogical.SMALLER_OR_EQUAL);
-                this.cursor += 1
+                this.cursor += 1;
             } else {
                 this.add_token(findKeyOfTokenLogical(TokenLogical.SMALLER)!, TokenLogical.SMALLER);
             }
@@ -72,6 +69,17 @@ export class Lexer {
             continue;
         }
 
+        if (this.character == "&" && this.code[this.cursor] == "&") {
+            this.add_token(findKeyOfTokenLogical(TokenLogical.AND)!, TokenLogical.AND);
+            this.cursor+=1;
+            continue;
+        } 
+
+        if (this.character == "|" && this.code[this.cursor] == "|") {
+            this.add_token(findKeyOfTokenLogical(TokenLogical.OR)!, TokenLogical.OR);
+            this.cursor+=1;
+            continue;
+        } 
 
         for(let [key, value] of types) {
             if (value == this.character) {
@@ -110,8 +118,12 @@ export class Lexer {
 
         const identifier = getStatement(value);
 
+        const booleanValue = getBoolean(value);
+
         if (identifier !== undefined) {
             this.tokens.push(identifier)
+        } else if (booleanValue !== undefined) {
+            this.tokens.push(booleanValue);
         } else {
             this.add_token(TokenType.IDENTIFIER, value);
         }

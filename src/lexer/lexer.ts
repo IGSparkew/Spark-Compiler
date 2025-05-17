@@ -41,13 +41,9 @@ export class Lexer {
             continue;
         }
 
-        if (this.character == TokenOperator.EXCLAMATION) {
-            if (this.code[this.cursor] == TokenOperator.EQUAL) {
-                this.add_token(findKeyOfTokenLogical(TokenLogical.NOT_EQUAL)!, TokenLogical.NOT_EQUAL);
-                continue;
-            } else {
-                throw new Error('Unexpected expression need = after !');
-            }
+        if (this.character == TokenOperator.EXCLAMATION && this.code[this.cursor] == TokenOperator.EQUAL) {
+            this.add_token(findKeyOfTokenLogical(TokenLogical.NOT_EQUAL)!, TokenLogical.NOT_EQUAL);
+            continue;
         }
 
         if (this.character == TokenOperator.GREATER) {

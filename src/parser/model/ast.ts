@@ -1,4 +1,4 @@
-export type AstNode = AssignementExpression | BinaryExpression | NumberLitteral | StringLitteral | IdentifierLitteral | LogicalExpression;
+export type AstNode = AssignementExpression | BinaryExpression | NumberLitteral | StringLitteral | IdentifierLitteral | LogicalExpression | UnaryExpression | UnaryLogicalExpression;
 
 export interface BinaryExpression {
     type: 'binary',
@@ -18,6 +18,18 @@ export interface LogicalExpression {
     operator: string
     left: AstNode,
     right: AstNode
+}
+
+export interface UnaryExpression {
+    type: 'unary',
+    operator:string,
+    left: AstNode
+}
+
+export interface UnaryLogicalExpression {
+    type: 'unary_logical',
+    operator:string,
+    left: AstNode
 }
 
 export interface NumberLitteral {

@@ -76,6 +76,13 @@ export class Interpreter {
                     return node.value;
                 case 'logical':
                     return this.evalLogical(node);
+                case 'unary_logical':
+                    return !this.evalExpression(node.left)
+                case 'unary':
+                    if (node.operator == AstTokenType.MINUS) {
+                        return this.evalExpression(node.left) * -1;
+                    }
+                    return this.evalExpression(node.left);
             }
 
     }

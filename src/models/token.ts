@@ -27,5 +27,6 @@ export enum AstTokenType {
     AND='AND',
     OR='OR',
     IF='IF',
-    ELSE='ELSE'
+    ELSE='ELSE',
+    EXCLAMATION='EXCLAMATION'
 }

@@ -2,6 +2,7 @@ import type { AssignementExpression, AstNode, BinaryExpression, IdentifierLitter
 import type { BlockStatement, ExpressionStatement, IfStatement, PrintStatement, Statement } from './model/statement';
 import type { Program } from '../models/program';
 import { AstTokenType, type Token } from '../models/token';
+import type { UnaryExpression } from 'typescript';
 
 
 export class Parser {
@@ -146,7 +147,7 @@ export class Parser {
     // Binary function
 
     private parseTermExpression() {
-         const operator = [AstTokenType.PLUS, AstTokenType.MINUS];
+        const operator = [AstTokenType.PLUS, AstTokenType.MINUS];
         let left = this.parseFactorExpression();
 
         while(this.include(operator)) {
@@ -166,7 +167,7 @@ export class Parser {
 
     private parseFactorExpression() : AstNode {
         const operator = [AstTokenType.MULT, AstTokenType.DIVIDE];
-        let left = this.parseLitteral();
+        let left = this.parseUnaryExpression();
 
         while(this.include(operator)) {
             const value = this.getOperator(operator); 
@@ -175,7 +176,7 @@ export class Parser {
                     type: 'binary',
                     operator: value?.toString()!,
                     left: left,
-                    right: this.parseLitteral()
+                    right: this.parseUnaryExpression()
                 }            
         }
 
@@ -183,14 +184,27 @@ export class Parser {
         return left;
     }
 
+    private parseUnaryExpression() : AstNode {
+        const operator = [AstTokenType.PLUS, AstTokenType.MINUS];
+        if (this.include(operator)) {
+            return {
+                type: 'unary',
+                operator: this.consume(this.getOperator(operator)!).type,
+                left: this.parseLitteral()
+            }
+        }
+
+        return this.parseLitteral();
+    }
+
     // LOGICAL EXPRESSION
 
     private parseLogicalExpression() : AstNode {
-        let left = this.parseTermExpression();
+        let left = this.parseUnaryLogicalExpression();
         const operators = [AstTokenType.SAME, AstTokenType.NOT_EQUAL, AstTokenType.GREATER, AstTokenType.SMALLER, AstTokenType.GREATER_OR_EQUAL, AstTokenType.SMALLER_OR_EQUAL];
         while(this.include(operators)) {
             const operator = this.consume(this.getOperator(operators)!);
-            const right = this.parseTermExpression()
+            const right = this.parseUnaryLogicalExpression()
             left = {
                 type:'logical',
                 operator: operator.type as string,
@@ -201,6 +215,18 @@ export class Parser {
         
 
         return left;
+    }
+
+    private parseUnaryLogicalExpression() : AstNode {
+        if (this.peek()?.type == AstTokenType.EXCLAMATION) {
+            return {
+                type: 'unary_logical',
+                operator: this.consume(AstTokenType.EXCLAMATION).type,
+                left: this.parseTermExpression()
+            }
+        }
+
+        return this.parseTermExpression();
     }
 
     private parseLogicalOrExpression(): AstNode {

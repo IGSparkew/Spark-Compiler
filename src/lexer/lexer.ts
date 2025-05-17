@@ -38,7 +38,7 @@ export class Lexer {
 
         if (this.lexLogicalOperator()) continue;
 
-        if (this.lexIncrementalOperator()) continue;
+        if (this.lexIncrementalAssignementOperator()) continue;
 
 
         for(let [key, value] of types) {
@@ -113,7 +113,7 @@ export class Lexer {
         return false;
     }
 
-    private lexIncrementalOperator() {
+    private lexIncrementalAssignementOperator() {
         if (this.character == TokenOperator.PLUS && this.code[this.cursor] == "=") {
             this.add_token(findKeyOfTokenOperator(TokenOperator.PLUS_EQUAL)!, TokenOperator.PLUS_EQUAL);
             this.cursor += 1;

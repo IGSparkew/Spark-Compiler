@@ -138,7 +138,7 @@ export class Parser {
     // Assignement function
 
     private parseAssignement(): AstNode {
-        let left = this.parseLogicalOrExpression();
+        let left = this.parseIncrementalAssignement();
         if (this.peek()?.type == AstTokenType.EQUAL) {
             this.consume(AstTokenType.EQUAL);
             const right = this.parseAssignement();
@@ -157,6 +157,25 @@ export class Parser {
         return left;
     }
 
+    private parseIncrementalAssignement() : AstNode {
+        const operators = [AstTokenType.PLUS_EQUAL, AstTokenType.MINUS_EQUAL, AstTokenType.MULT_EQUAL, AstTokenType.DIVIDE_EQUAL];
+        let left = this.parseLogicalOrExpression();
+        if (this.include(operators)) {
+            const type = this.getOperator(operators);
+            const op = this.consume(type!)
+            const right = this.parseExpression();
+            left = {
+                type: 'increment_assignement',
+                operator: op.type,
+                right,
+                left
+            }
+        }
+
+        return left;
+        
+    }
+ 
 
     // Binary function
 

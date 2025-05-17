@@ -1,5 +1,5 @@
 import { TokenLogical, TokenOperator, TokenType } from "./model/token";
-import { filter_character, findKeyOfTokenLogical, isAlpha, isDigit } from "../utils";
+import { filter_character, findKeyOfTokenLogical, findKeyOfTokenOperator, isAlpha, isDigit } from "../utils";
 
 import { getNumber } from "./number";
 import { getAlpha } from "./alpha";
@@ -36,50 +36,10 @@ export class Lexer {
             continue;
         }
 
-        if (this.character == TokenOperator.EQUAL && this.code[this.cursor] == TokenOperator.EQUAL) {
-            this.add_token(findKeyOfTokenLogical(TokenLogical.SAME)!, TokenLogical.SAME);
-            this.cursor += 1
-            continue;
-        }
+        if (this.lexLogicalOperator()) continue;
 
-        if (this.character == TokenOperator.EXCLAMATION && this.code[this.cursor] == TokenOperator.EQUAL) {
-            this.add_token(findKeyOfTokenLogical(TokenLogical.NOT_EQUAL)!, TokenLogical.NOT_EQUAL);
-            continue;
-        }
+        if (this.lexIncrementalAssignementOperator()) continue;
 
-        if (this.character == TokenOperator.GREATER) {
-            if (this.code[this.cursor] == TokenOperator.EQUAL) {
-                this.add_token(findKeyOfTokenLogical(TokenLogical.GREATER_OR_EQUAL)!, TokenLogical.GREATER_OR_EQUAL);
-                this.cursor += 1
-            } else {
-                this.add_token(findKeyOfTokenLogical(TokenLogical.GREATER)!, TokenLogical.GREATER);
-            }
-
-            continue;
-        }
-
-        if (this.character == TokenOperator.SMALLER) {
-            if (this.code[this.cursor] == TokenOperator.EQUAL) {
-                this.add_token(findKeyOfTokenLogical(TokenLogical.SMALLER_OR_EQUAL)!, TokenLogical.SMALLER_OR_EQUAL);
-                this.cursor += 1;
-            } else {
-                this.add_token(findKeyOfTokenLogical(TokenLogical.SMALLER)!, TokenLogical.SMALLER);
-            }
-
-            continue;
-        }
-
-        if (this.character == "&" && this.code[this.cursor] == "&") {
-            this.add_token(findKeyOfTokenLogical(TokenLogical.AND)!, TokenLogical.AND);
-            this.cursor+=1;
-            continue;
-        } 
-
-        if (this.character == "|" && this.code[this.cursor] == "|") {
-            this.add_token(findKeyOfTokenLogical(TokenLogical.OR)!, TokenLogical.OR);
-            this.cursor+=1;
-            continue;
-        } 
 
         for(let [key, value] of types) {
             if (value == this.character) {
@@ -102,6 +62,83 @@ export class Lexer {
             throw new Error(`Unexpected Token ${this.character}`);
         }
        }
+    }
+
+    private lexLogicalOperator() {
+        if (this.character == TokenOperator.EQUAL && this.code[this.cursor] == TokenOperator.EQUAL) {
+            this.add_token(findKeyOfTokenLogical(TokenLogical.SAME)!, TokenLogical.SAME);
+            this.cursor += 1
+            return true;
+        }
+
+        if (this.character == TokenOperator.EXCLAMATION && this.code[this.cursor] == TokenOperator.EQUAL) {
+            this.add_token(findKeyOfTokenLogical(TokenLogical.NOT_EQUAL)!, TokenLogical.NOT_EQUAL);
+            return true;
+        }
+
+        if (this.character == TokenOperator.GREATER) {
+            if (this.code[this.cursor] == TokenOperator.EQUAL) {
+                this.add_token(findKeyOfTokenLogical(TokenLogical.GREATER_OR_EQUAL)!, TokenLogical.GREATER_OR_EQUAL);
+                this.cursor += 1
+            } else {
+                this.add_token(findKeyOfTokenLogical(TokenLogical.GREATER)!, TokenLogical.GREATER);
+            }
+
+            return true;
+        }
+
+        if (this.character == TokenOperator.SMALLER) {
+            if (this.code[this.cursor] == TokenOperator.EQUAL) {
+                this.add_token(findKeyOfTokenLogical(TokenLogical.SMALLER_OR_EQUAL)!, TokenLogical.SMALLER_OR_EQUAL);
+                this.cursor += 1;
+            } else {
+                this.add_token(findKeyOfTokenLogical(TokenLogical.SMALLER)!, TokenLogical.SMALLER);
+            }
+
+            return true;
+        }
+
+        if (this.character == "&" && this.code[this.cursor] == "&") {
+            this.add_token(findKeyOfTokenLogical(TokenLogical.AND)!, TokenLogical.AND);
+            this.cursor+=1;
+            return true;
+        } 
+
+        if (this.character == "|" && this.code[this.cursor] == "|") {
+            this.add_token(findKeyOfTokenLogical(TokenLogical.OR)!, TokenLogical.OR);
+            this.cursor+=1;
+            return true;
+        }
+
+        return false;
+    }
+
+    private lexIncrementalAssignementOperator() {
+        if (this.character == TokenOperator.PLUS && this.code[this.cursor] == "=") {
+            this.add_token(findKeyOfTokenOperator(TokenOperator.PLUS_EQUAL)!, TokenOperator.PLUS_EQUAL);
+            this.cursor += 1;
+            return true;
+        }
+
+        if (this.character == TokenOperator.MINUS && this.code[this.cursor] == "=") {
+             this.add_token(findKeyOfTokenOperator(TokenOperator.MINUS_EQUAL)!, TokenOperator.MINUS_EQUAL);
+            this.cursor += 1;
+            return true;           
+        }
+
+        if (this.character == TokenOperator.MULT && this.code[this.cursor] == "=") {
+            this.add_token(findKeyOfTokenOperator(TokenOperator.MULT_EQUAL)!, TokenOperator.MULT_EQUAL);
+            this.cursor += 1;
+            return true;
+        }
+
+        if (this.character == TokenOperator.DIVIDE && this.code[this.cursor] == "=") {
+            this.add_token(findKeyOfTokenOperator(TokenOperator.DIVIDE_EQUAL)!, TokenOperator.DIVIDE_EQUAL);
+            this.cursor += 1;
+            return true;           
+        }
+
+        return false;
     }
 
     private number() {

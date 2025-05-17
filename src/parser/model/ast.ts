@@ -1,7 +1,14 @@
-export type AstNode = AssignementExpression | BinaryExpression | NumberLitteral | StringLitteral | IdentifierLitteral | LogicalExpression | UnaryExpression | UnaryLogicalExpression | BooleanLitteral;
+export type AstNode = AssignementExpression | BinaryExpression | NumberLitteral | StringLitteral | IdentifierLitteral | LogicalExpression | UnaryExpression | UnaryLogicalExpression | BooleanLitteral | IncrementAssignementExpression;
 
 export interface BinaryExpression {
     type: 'binary',
+    operator: string,
+    left: AstNode,
+    right: AstNode,
+}
+
+export interface IncrementAssignementExpression {
+    type: 'increment_assignement',
     operator: string,
     left: AstNode,
     right: AstNode,

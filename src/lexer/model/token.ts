@@ -12,7 +12,11 @@ export enum TokenOperator {
     SMALLER="<",
     SEMICOLON=";",
     OPEN_BRACE="{",
-    CLOSED_BRACE="}" 
+    CLOSED_BRACE="}",
+    PLUS_EQUAL="+=",
+    MINUS_EQUAL="-=",
+    MULT_EQUAL="*=",
+    DIVIDE_EQUAL="/=",
 }
 
 export enum TokenLogical {
@@ -42,4 +46,5 @@ export enum TokenStatement {
     PRINT = "print",
     IF="if",
     ELSE="else",
+    WHILE="while"
 }

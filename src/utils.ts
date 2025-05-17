@@ -1,4 +1,4 @@
-import { TokenLogical } from "./lexer/model/token";
+import { TokenLogical, TokenOperator } from "./lexer/model/token";
 
 export function filter_character(char: string): boolean {
     return char === " " || char === "\0" || char === "\n" || char === "\r" || char === "\t"
@@ -17,6 +17,16 @@ export function isAlpha(c: string | undefined) {
 
 export function findKeyOfTokenLogical(value: string | TokenLogical) {
     const match = Object.entries(TokenLogical).find(([k, v]) => v == value);
+    if (match) {
+        const [k] = match;
+        return k;
+    }
+
+    return undefined;
+}
+
+export function findKeyOfTokenOperator(value: string | TokenOperator) {
+    const match = Object.entries(TokenOperator).find(([k, v]) => v == value);
     if (match) {
         const [k] = match;
         return k;

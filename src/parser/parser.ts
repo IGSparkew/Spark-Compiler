@@ -1,5 +1,5 @@
 import type { AssignementExpression, AstNode, BinaryExpression, BooleanLitteral, IdentifierLitteral, LogicalExpression, NumberLitteral, StringLitteral } from './model/ast';
-import type { BlockStatement, ExpressionStatement, IfStatement, PrintStatement, Statement } from './model/statement';
+import type { BlockStatement, ExpressionStatement, IfStatement, PrintStatement, Statement, WhileStatement } from './model/statement';
 import type { Program } from '../models/program';
 import { AstTokenType, type Token } from '../models/token';
 
@@ -44,6 +44,8 @@ export class Parser {
                 return this.parsePrint();
             case AstTokenType.IF:
                 return this.parseIf();
+            case AstTokenType.WHILE:
+                return this.parseWhile();
             default:
                 return this.parseExpressionStatement();
         }
@@ -81,11 +83,24 @@ export class Parser {
         
         return {
             type: 'if',
-            condition: condition,
-            consequence: consequence,
-            alternate: alternate
+            condition,
+            consequence,
+            alternate
         }
+    }
 
+    private parseWhile() : WhileStatement {
+        this.consume(AstTokenType.WHILE);
+        this.consume(AstTokenType.OPEN_BRACKET);
+        const condition = this.parseExpression();
+        this.consume(AstTokenType.CLOSED_BRACKET);
+        const consequence = this.parseBlockStatement();
+
+        return {
+            type:'while',
+            condition,
+            consequence
+        }
     }
 
     private parseBlockStatement(): BlockStatement {

@@ -1,7 +1,7 @@
 import { AstTokenType } from "../models/token";
 import { type AssignementExpression, type AstNode, type BinaryExpression, type LogicalExpression } from "../parser/model/ast";
 import type { Program } from "../models/program";
-import type { BlockStatement, ExpressionStatement, IfStatement, PrintStatement, Statement } from "../parser/model/statement";
+import type { BlockStatement, ExpressionStatement, IfStatement, PrintStatement, Statement, WhileStatement } from "../parser/model/statement";
 
 
 export class Interpreter {
@@ -31,9 +31,18 @@ export class Interpreter {
                 case "expression":
                     this.evalExpression((statement as ExpressionStatement).expression);
                     break;
+                case "while":
+                    this.evalWhile(statement as WhileStatement);
+                    break;
                 default:
                     throw new Error(`Unexpected statement ${(statement as Statement).type}`);
             }
+    }
+
+    private evalWhile(smt: WhileStatement) {
+        while(this.evalExpression(smt.condition)) {
+            this.evalBlockStatement(smt.consequence);
+        }
     }
 
     private evalIf(smt: IfStatement) : any {

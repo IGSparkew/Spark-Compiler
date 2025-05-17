@@ -29,5 +29,6 @@ export enum AstTokenType {
     IF='IF',
     ELSE='ELSE',
     EXCLAMATION='EXCLAMATION',
-    BOOLEAN='BOOLEAN'
+    BOOLEAN='BOOLEAN',
+    WHILE='WHILE'
 }

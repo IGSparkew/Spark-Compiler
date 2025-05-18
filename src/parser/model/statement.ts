@@ -1,6 +1,6 @@
 import type { AstNode, IdentifierLitteral } from "./ast"
 
-export type Statement = ExpressionStatement | PrintStatement | IfStatement | BlockStatement | WhileStatement
+export type Statement = ExpressionStatement | PrintStatement | IfStatement | BlockStatement | WhileStatement | FuncStatement | ReturnStatement
 
 export interface PrintStatement {
     type: 'print'
@@ -21,12 +21,25 @@ export interface ExpressionStatement {
 
 export interface BlockStatement {
     type: 'block',
-    statements: Statement[]
+    statements: Statement[],
+    return?: ReturnStatement
 }
 
 export interface WhileStatement {
     type:'while',
     condition: AstNode,
     consequence: BlockStatement
+}
+
+export interface FuncStatement {
+    type: 'func',
+    name: string,
+    params: string[],
+    body: BlockStatement,
+}
+
+export interface ReturnStatement {
+    type: 'return',
+    expression?: AstNode; 
 }
 

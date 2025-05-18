@@ -1,5 +1,5 @@
-import type { AssignementExpression, AstNode, BinaryExpression, BooleanLitteral, IdentifierLitteral, LogicalExpression, NumberLitteral, StringLitteral } from './model/ast';
-import type { BlockStatement, ExpressionStatement, IfStatement, PrintStatement, Statement, WhileStatement } from './model/statement';
+import type { AssignementExpression, AstNode, BinaryExpression, BooleanLitteral, FunctionCaller, IdentifierLitteral, LogicalExpression, NumberLitteral, StringLitteral } from './model/ast';
+import type { BlockStatement, ExpressionStatement, FuncStatement, IfStatement, PrintStatement, ReturnStatement, Statement, WhileStatement } from './model/statement';
 import type { Program } from '../models/program';
 import { AstTokenType, type Token } from '../models/token';
 
@@ -46,6 +46,10 @@ export class Parser {
                 return this.parseIf();
             case AstTokenType.WHILE:
                 return this.parseWhile();
+            case AstTokenType.FUNC:
+                return this.parseFunction();
+            case AstTokenType.RETURN:
+                return this.parseReturnStatement();
             default:
                 return this.parseExpressionStatement();
         }
@@ -103,6 +107,29 @@ export class Parser {
         }
     }
 
+    // Function declaration
+    private parseFunction() : FuncStatement {
+        this.consume(AstTokenType.FUNC);
+        const name = this.consume(AstTokenType.IDENTIFIER);
+        this.consume(AstTokenType.OPEN_BRACKET);
+        const params: string[] = [];
+        while(this.peek()?.type !== AstTokenType.CLOSED_BRACKET && !this.isFinished) {
+            if (this.peek()?.type == AstTokenType.COMMA) this.consume(AstTokenType.COMMA);
+            params.push(this.peek()?.value as string);
+            this.consume(AstTokenType.IDENTIFIER);   
+        }
+
+        this.consume(AstTokenType.CLOSED_BRACKET);
+        const body = this.parseBlockStatement();
+
+        return {
+            type: 'func',
+            name: name.value as string,
+            params,
+            body,
+        }
+    }
+
     private parseBlockStatement(): BlockStatement {
         this.consume(AstTokenType.OPEN_BRACE);
         const statements : Statement[] = [];
@@ -119,6 +146,21 @@ export class Parser {
             statements,
         }
 
+    }
+
+    private parseReturnStatement(): ReturnStatement {
+        this.consume(AstTokenType.RETURN);
+        let smt: AstNode | undefined = undefined;
+
+        if (this.peek()?.type != AstTokenType.SEMICOLON) {
+            smt = this.parseExpression();
+        }
+
+        this.consume(AstTokenType.SEMICOLON);
+        return {
+            type: 'return',
+            expression:smt
+        }
     }
 
     private parseExpressionStatement() : ExpressionStatement{
@@ -328,8 +370,13 @@ export class Parser {
         }
     }
 
-    private parseIdentifier() : IdentifierLitteral {
+    private parseIdentifier() : AstNode {
        const token = this.consume(AstTokenType.IDENTIFIER);
+       
+       if (this.peek()?.type == AstTokenType.OPEN_BRACKET) {
+            return this.parseCallFunction(token);
+       }
+       
        if (typeof(token.value) !== 'string') {
             throw new Error('Unexpected value for this type of token');
        } 
@@ -338,6 +385,24 @@ export class Parser {
         type: 'variable',
         value: token.value
        }
+    }
+
+    parseCallFunction(token: Token): FunctionCaller {
+        this.consume(AstTokenType.OPEN_BRACKET);
+        const args: AstNode[] = [];
+        while(this.peek()?.type !== AstTokenType.CLOSED_BRACKET) {
+            if (this.peek()?.type == AstTokenType.COMMA) this.consume(AstTokenType.COMMA);
+            const arg = this.parseExpression();
+            args.push(arg);
+        }
+
+        this.consume(AstTokenType.CLOSED_BRACKET);
+
+        return {
+            type: 'function_caller',
+            call: token.value as string,
+            arguments: args,
+        }
     }
 
     private parseString() : StringLitteral {

@@ -17,6 +17,7 @@ export enum TokenOperator {
     MINUS_EQUAL="-=",
     MULT_EQUAL="*=",
     DIVIDE_EQUAL="/=",
+    COMMA=","
 }
 
 export enum TokenLogical {
@@ -46,5 +47,7 @@ export enum TokenStatement {
     PRINT = "print",
     IF="if",
     ELSE="else",
-    WHILE="while"
+    WHILE="while",
+    FUNC="func",
+    RETURN="return"
 }

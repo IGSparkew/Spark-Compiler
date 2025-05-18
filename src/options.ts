@@ -12,5 +12,20 @@ export const options : ParseArgsOptionsConfig = {
     },
     file: {
         type: 'string'
+    }  
+}
+
+export const optionsCli : ParseArgsOptionsConfig = {
+    debug : {
+        type: 'boolean'
+    },
+    ascii : {
+        type: 'boolean'
+    },
+    file: {
+        type: 'string'
+    },
+    folder: {
+        type: 'string'
     }    
 }

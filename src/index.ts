@@ -1,5 +1,5 @@
 import { Compile } from "./compiler";
-import {parseArgs} from 'util'
+import { parseArgs } from 'util'
 import { options } from "./options";
 import { ScriptReader } from "./reader/reader";
 /**

@@ -2,7 +2,11 @@
   "name": "sparkcompiler",
   "module": "index.ts",
   "type": "module",
+  "version": "0.2",
   "private": true,
+  "bin": {
+    "spk_compile": "./bin/index.ts"
+  },
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "start:dev": "bun run src/index.ts",
@@ -21,5 +25,6 @@
   },
   "peerDependencies": {
     "typescript": "^5"
-  }
+  },
+  "dependencies": {}
 }

@@ -18,7 +18,8 @@
     "exemple:if": "bun run start:exemple simple_if",
     "exemple:if_else": "bun run start:exemple if_else",
     "exemple:rev_bool": "bun run start:exemple reverse_boolean_statement",
-    "exemple:while_loop": "bun run start:exemple simple_while_loop"
+    "exemple:while_loop": "bun run start:exemple simple_while_loop",
+    "exemple:add_func": "bun run start:exemple add_func"
   },
   "devDependencies": {
     "@types/bun": "latest"

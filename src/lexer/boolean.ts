@@ -8,9 +8,12 @@ export function getBoolean(identifier: string) : Token | undefined {
     
         for (let [_, value] of statements) {
             if (identifier == value) {
+                let val = false;
+                if (value === "true") val = true;
+                
                 return {
                     type: TokenType.BOOLEAN,
-                    value: Boolean(value)
+                    value: val
                 }
             }
         } 

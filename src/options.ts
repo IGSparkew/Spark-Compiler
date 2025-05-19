@@ -12,6 +12,12 @@ export const options : ParseArgsOptionsConfig = {
     },
     file: {
         type: 'string'
+    },
+    lexer: {
+        type: 'boolean'
+    },
+    parser: {
+        type: 'boolean'
     }  
 }
 

@@ -31,7 +31,7 @@ function main() {
     })
 
     const code = ScriptReader(values);
-    Compile(code , values.debug as boolean, !values.ascii as boolean);
+    Compile(code , values.debug as boolean, !values.ascii as boolean, !!values.lexer as boolean, !!values.parser as boolean);
 }
 
 main();

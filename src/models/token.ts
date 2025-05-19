@@ -11,7 +11,8 @@ export enum AstTokenType {
     IDENTIFIER = 'IDENTIFIER' , 
     PLUS = 'PLUS' , 
     MINUS = 'MINUS' , 
-    MULT='MULT' , 
+    MULT='MULT' ,
+    COMMA='COMMA', 
     DIVIDE = 'DIVIDE' , 
     EQUAL = 'EQUAL',
     STRING= 'STRING',
@@ -34,5 +35,7 @@ export enum AstTokenType {
     PLUS_EQUAL="PLUS_EQUAL",
     MINUS_EQUAL="MINUS_EQUAL",
     MULT_EQUAL="MULT_EQUAL",
-    DIVIDE_EQUAL="DIVIDE_EQUAL"
+    DIVIDE_EQUAL="DIVIDE_EQUAL",
+    FUNC='FUNC',
+    RETURN='RETURN'
 }

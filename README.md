@@ -87,6 +87,8 @@ spk --file file_name
 | `--file` | Specify input file (defaults to `/script` folder) |
 | `--debug` | Enable step-by-step debugging |
 | `--ascii` | Disable ASCII art output |
+| `--lexer` | Stop compiler at lexer step |
+| `--parser` | Stop compiler at parser step |
 | `--exemple` | Use examples from `/exemple` folder |
 | `--folder` | Use this with **spk command (CLI)** to put folder name |
 

@@ -12,12 +12,16 @@ export class Compiler {
     private tokens: Token[];
     private program?: Program;
     private showAscii: boolean;
+    private lexerOnly: boolean;
+    private parserOnly: boolean;
 
-    constructor(code: string, debug: boolean, showAscii: boolean) {
+    constructor(code: string, debug: boolean, showAscii: boolean, lexerOnly:boolean, parserOnly:boolean) {
         this.code = code;
         this.debug = debug;
         this.tokens = [];
         this.showAscii = showAscii;
+        this.lexerOnly=lexerOnly;
+        this.parserOnly=parserOnly;
     }
 
 
@@ -58,6 +62,10 @@ $$\   $$ |$$ |  $$ |$$  __$$ |$$ |      $$  _$$<        $$ |  $$\ $$ |  $$ |$$ |
             console.log(this.tokens);
         }
 
+        if (this.lexerOnly) {
+            return;
+        }
+
         this.program = Parse(this.tokens);
 
         if (this.program === undefined) {
@@ -67,6 +75,10 @@ $$\   $$ |$$ |  $$ |$$  __$$ |$$ |      $$  _$$<        $$ |  $$\ $$ |  $$ |$$ |
         if (this.debug) {
             console.log("===================Parser================");
             console.log(JSON.stringify(this.program));
+        }
+
+        if (this.parserOnly) {
+            return;
         }
 
         if (this.debug) {

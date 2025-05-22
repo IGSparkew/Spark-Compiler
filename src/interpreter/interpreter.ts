@@ -64,7 +64,7 @@ export class Interpreter {
     }
 
     private evalWhile(smt: WhileStatement, localEnv?:Map<string,any>) {
-        while(this.evalExpression(smt.condition)) {
+        while(this.evalExpression(smt.condition, localEnv)) {
             this.evalBlockStatement(smt.consequence, localEnv);
         }
     }
@@ -201,7 +201,7 @@ export class Interpreter {
             case AstTokenType.GREATER:
                 return this.evalExpression(node.left, localEnv) > this.evalExpression(node.right), localEnv;
             case AstTokenType.SMALLER:
-                return this.evalExpression(node.left, localEnv) < this.evalExpression(node.right), localEnv;
+                return this.evalExpression(node.left, localEnv) < this.evalExpression(node.right, localEnv);
             case AstTokenType.GREATER_OR_EQUAL:
                 return this.evalExpression(node.left, localEnv) >= this.evalExpression(node.right, localEnv);
             case AstTokenType.SMALLER_OR_EQUAL:
@@ -209,7 +209,7 @@ export class Interpreter {
             case AstTokenType.AND:
                 return this.evalExpression(node.left, localEnv) && this.evalExpression(node.right, localEnv);
             case AstTokenType.OR:
-                return this.evalExpression(node.left, localEnv) || this.evalExpression(node.left), localEnv;        
+                return this.evalExpression(node.left, localEnv) || this.evalExpression(node.left, localEnv);        
         }
     }
 

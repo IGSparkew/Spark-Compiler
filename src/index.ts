@@ -2,6 +2,7 @@ import { Compile } from "./compiler";
 import { parseArgs } from 'util'
 import { options } from "./options";
 import { ScriptReader } from "./reader/reader";
+import { FileLoad } from "./loader";
 /**
  * ################################################################################
  * #                                                                              #
@@ -30,8 +31,9 @@ function main() {
         allowPositionals: true
     })
 
-    const code = ScriptReader(values);
-    Compile(code , values.debug as boolean, !values.ascii as boolean, !!values.lexer as boolean, !!values.parser as boolean);
+    const {path, code} = ScriptReader(values);
+    const finalCode = FileLoad(code, path);
+    Compile(finalCode , values.debug as boolean, !values.ascii as boolean, !!values.lexer as boolean, !!values.parser as boolean);
 }
 
 main();

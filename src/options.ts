@@ -33,5 +33,11 @@ export const optionsCli : ParseArgsOptionsConfig = {
     },
     folder: {
         type: 'string'
-    }    
+    },
+        lexer: {
+        type: 'boolean'
+    },
+    parser: {
+        type: 'boolean'
+    }     
 }

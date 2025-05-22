@@ -14,7 +14,7 @@ const {values} = parseArgs({
 
 try {
     const code = CLIReader(values);
-    Compile(code);
+    Compile(code, values.debug as boolean, !values.ascii as boolean, !!values.lexer as boolean, !!values.parser as boolean);
 } catch (err) {
   console.error("Erreur lors de la lecture du fichier:", err);
 }

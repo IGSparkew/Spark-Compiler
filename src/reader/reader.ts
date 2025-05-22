@@ -3,7 +3,7 @@ import * as fs from 'fs';
 const scriptFolderPathName = 'scripts';
 const exempleFolderPathName = 'exemples';
 
-export function ScriptReader(argsValues : { [x: string]: string | boolean | (string | boolean)[] | undefined }) : string {
+export function ScriptReader(argsValues : { [x: string]: string | boolean | (string | boolean)[] | undefined }) :  {path: string, code: string} {
 
         let folderPathName = scriptFolderPathName;
 
@@ -18,7 +18,7 @@ export function ScriptReader(argsValues : { [x: string]: string | boolean | (str
         return reader(folderPathName, argsValues);
 }
 
-export function CLIReader(argsValues : { [x: string]: string | boolean | (string | boolean)[] | undefined }) : string {
+export function CLIReader(argsValues : { [x: string]: string | boolean | (string | boolean)[] | undefined }) :  {path: string, code: string} {
         let folderPathName = ""
         
         if (argsValues.folder !== undefined && typeof(argsValues.folder) == 'string') {
@@ -30,7 +30,7 @@ export function CLIReader(argsValues : { [x: string]: string | boolean | (string
 
 }
 
-function reader(folderPathName: string, argsValues : { [x: string]: string | boolean | (string | boolean)[] | undefined }) {
+function reader(folderPathName: string, argsValues : { [x: string]: string | boolean | (string | boolean)[] | undefined }) : {path: string, code: string} {
         if (argsValues.file === undefined && typeof(argsValues.file) !== 'string') {
             throw new Error(`Error no file set to compiled`);
         }
@@ -38,13 +38,19 @@ function reader(folderPathName: string, argsValues : { [x: string]: string | boo
         let file = "";
 
         file = argsValues.file as string;
-
-        let path =  `./${folderPathName}/${file}.spk`
+        let path = `./${folderPathName}/`;
 
         if (folderPathName.length == 0) {
-            path = `./${file}.spk`;
+            path = "./";
         }
+        
+        let finalpath = path + file + ".spk";
+        
+        const code = fs.readFileSync(finalpath, 'utf-8');
 
-        return fs.readFileSync(path, 'utf-8');
+        return {
+            path,
+            code
+        }
 
 }
